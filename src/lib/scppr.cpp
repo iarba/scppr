@@ -100,8 +100,8 @@ scppr::scppr::scppr(std::string name)
   glfwSetErrorCallback(scppr_error_callback);
 
   scppr_LOG("creating glfw window");
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   window = glfwCreateWindow(default_width, default_height, name.c_str(), NULL, NULL);
   scppr_ASSERT(window, "failed to create glfw window");
