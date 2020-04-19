@@ -22,7 +22,7 @@ bool scppr_initialised = false;
  *       -y
  *
  */
-static const GLfloat square_vertices[] = 
+static const float square_vertices[] = 
 {
    0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // 1
    0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // 2
@@ -80,6 +80,7 @@ scppr::rectangle_t::rectangle_t()
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
   glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 }
