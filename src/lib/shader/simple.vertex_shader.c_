@@ -5,8 +5,10 @@ layout (location = 1) in vec2 v_texture_coord;
 
 out vec2 f_coord;
 
+uniform mat4 mvp;
+
 void main()
 {
-  gl_Position = vec4(v_pos, 1);
+  gl_Position = mvp * vec4(v_pos, 1);
   f_coord = v_texture_coord;
 }

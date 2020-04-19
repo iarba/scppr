@@ -27,14 +27,11 @@ namespace scppr
   public:
     rectangle_t();
     ~rectangle_t();
-    glm::dvec3 position;
-    glm::dvec3 rotation;
-    glm::dvec2 scale;
+    glm::dvec3 position = {0, 0, 0};
+    glm::dvec3 rotation = {0, 0, 0};
+    glm::dvec2 scale = {1, 1};
     texture_t *texture;
     // do not fiddle with these
-    GLuint vao;
-    GLuint vbo;
-    GLuint ebo;
   };
 
   class scppr
@@ -55,6 +52,9 @@ namespace scppr
     double camera_fov;
     glm::dvec3 camera_eye;
     glm::dvec3 camera_point;
+    GLuint rectangle_vao;
+    GLuint rectangle_vbo;
+    GLuint rectangle_ebo;
     std::vector<rectangle_t *> rectangles;
   };
 }

@@ -52,7 +52,7 @@ scppr::texture_t::texture_t(std::string path)
   glBindTexture(GL_TEXTURE_2D, t_id);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   stbi_image_free(data);
 }
@@ -65,31 +65,10 @@ scppr::texture_t::~texture_t()
 
 scppr::rectangle_t::rectangle_t()
 {
-  scppr_ASSERT(scppr_initialised, "scppr is not initialised");
-  scppr_LOG("creating rectangle buffers");
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
-  glGenBuffers(1, &ebo);
-  scppr_LOG("populating buffers");
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW); 
-  scppr_LOG("defining buffer structure");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
 }
 
 scppr::rectangle_t::~rectangle_t()
 {
-  glDeleteVertexArrays(1, &vao);
-  glDeleteBuffers(1, &vbo);
-  glDeleteBuffers(1, &ebo);
 }
 
 scppr::scppr::scppr(std::string name)
@@ -114,6 +93,24 @@ scppr::scppr::scppr(std::string name)
   scppr_LOG("configuring gl context");
   glfwSwapInterval(1);
 
+  scppr_LOG("creating rectangle buffers");
+  glGenVertexArrays(1, &rectangle_vao);
+  glGenBuffers(1, &rectangle_vbo);
+  glGenBuffers(1, &rectangle_ebo);
+  scppr_LOG("populating buffers");
+  glBindVertexArray(rectangle_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, rectangle_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectangle_ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW); 
+  scppr_LOG("defining buffer structure");
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
   scppr_LOG("creating gl render program");
   program = load_program();
 
@@ -126,6 +123,9 @@ scppr::scppr::scppr(std::string name)
 
 scppr::scppr::~scppr()
 {
+  glDeleteVertexArrays(1, &rectangle_vao);
+  glDeleteBuffers(1, &rectangle_vbo);
+  glDeleteBuffers(1, &rectangle_ebo);
   scppr_initialised = false;
   glfwDestroyWindow(window);
   glfwTerminate();
@@ -159,8 +159,17 @@ void scppr::scppr::draw()
   glUseProgram(program);
   for(auto rectangle : rectangles)
   {
-    glBindVertexArray(rectangle -> vao);
+    glm::mat4 model = glm::mat4(1);
+              model = glm::translate(model, glm::vec3(rectangle -> position));
+              model = glm::rotate(model, (float)rectangle -> rotation.x, {1, 0, 0});
+              model = glm::rotate(model, (float)rectangle -> rotation.y, {0, 1, 0});
+              model = glm::rotate(model, (float)rectangle -> rotation.z, {0, 0, 1});
+              model = glm::scale(model, glm::vec3(glm::vec2(rectangle -> scale), 0));
+    glm::mat4 mvp = model;
+
+    glBindVertexArray(rectangle_vao);
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, rectangle -> texture -> t_id);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
