@@ -24,10 +24,10 @@ bool scppr_initialised = false;
  */
 static const float square_vertices[] =
 {
-   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // 0
-   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 1
-  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 2
-  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // 3
+   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, // 0
+   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, // 1
+  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, // 2
+  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f  // 3
 };
 
 static const unsigned int square_indices[] =
