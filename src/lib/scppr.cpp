@@ -24,10 +24,10 @@ bool scppr_initialised = false;
  */
 static const float square_vertices[] =
 {
-   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, // 0
-   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, // 1
-  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, // 2
-  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f  // 3
+   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // 0
+   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 1
+  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 2
+  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // 3
 };
 
 static const unsigned int square_indices[] =
@@ -38,42 +38,42 @@ static const unsigned int square_indices[] =
 
 static const float cube_vertices[] =
 {
-  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-   0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-  -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-  -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-   0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-   0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-  -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+   0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+  -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+  -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+   0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+   0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+  -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
 };
 
 void scppr_error_callback(int error, const char* description)
@@ -171,10 +171,12 @@ scppr::scppr::scppr(std::string name)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW); 
 
   scppr_LOG("defining buffer structure for rectangle");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
 
   scppr_LOG("unbinding buffer");
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -190,10 +192,12 @@ scppr::scppr::scppr(std::string name)
   glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
 
   scppr_LOG("defining buffer structure for cube");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
 
   scppr_LOG("unbinding buffer");
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -207,7 +211,7 @@ scppr::scppr::scppr(std::string name)
   glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
 
   scppr_LOG("defining buffer structure for light");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 
   scppr_LOG("unbinding buffer");
@@ -316,10 +320,12 @@ void scppr::scppr::draw()
               model = glm::rotate(model, rectangle -> rotation.y, {0, 1, 0});
               model = glm::rotate(model, rectangle -> rotation.z, {0, 0, 1});
               model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
-    glm::mat4 mvp = vp * model;
 
+    glm::mat4 f_m = model;
+    glm::mat4 f_vp = vp;
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
-    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, &f_vp[0][0]);
     glUniform3f(glGetUniformLocation(program, "light_color"), 1, 1, 1);
 
     glActiveTexture(GL_TEXTURE0);
@@ -339,10 +345,12 @@ void scppr::scppr::draw()
               model = glm::rotate(model, cube -> rotation.y, {0, 1, 0});
               model = glm::rotate(model, cube -> rotation.z, {0, 0, 1});
               model = glm::scale(model, cube -> scale);
-    glm::mat4 mvp = vp * model;
 
+    glm::mat4 f_m = model;
+    glm::mat4 f_vp = vp;
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
-    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, &f_vp[0][0]);
     glUniform3f(glGetUniformLocation(program, "light_color"), 1, 1, 1);
 
     glActiveTexture(GL_TEXTURE0);
