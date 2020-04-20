@@ -97,12 +97,14 @@ scppr::scppr::scppr(std::string name)
   glGenVertexArrays(1, &rectangle_vao);
   glGenBuffers(1, &rectangle_vbo);
   glGenBuffers(1, &rectangle_ebo);
+
   scppr_LOG("populating buffers");
   glBindVertexArray(rectangle_vao);
   glBindBuffer(GL_ARRAY_BUFFER, rectangle_vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectangle_ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW); 
+
   scppr_LOG("defining buffer structure");
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -115,7 +117,7 @@ scppr::scppr::scppr(std::string name)
   program = load_program();
 
   scppr_LOG("initialising camera");
-  set_camera(M_PI / 2, {0, 0, 5}, {0, 0, 0});
+  set_camera(M_PI / 2, {0, 0, 1}, 0.0, 0, -M_PI / 2, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
 
   scppr_initialised = true;
   scppr_LOG("scppr initialised successfully");
@@ -157,15 +159,19 @@ void scppr::scppr::draw()
 
   scppr_LOG("running program");
   glUseProgram(program);
+  glm::dmat4 projection = glm::perspective(camera_fov, (double)width / (double)height, 0.1, 100.0);
+  glm::dmat4 view = glm::lookAt(camera_eye, (camera_eye + camera_front), camera_up);
+  view = glm::rotate(view, camera_roll, camera_front);
+  glm::dmat4 vp = projection * view;
   for(auto rectangle : rectangles)
   {
-    glm::mat4 model = glm::mat4(1);
-              model = glm::translate(model, glm::vec3(rectangle -> position));
-              model = glm::rotate(model, (float)rectangle -> rotation.x, {1, 0, 0});
-              model = glm::rotate(model, (float)rectangle -> rotation.y, {0, 1, 0});
-              model = glm::rotate(model, (float)rectangle -> rotation.z, {0, 0, 1});
-              model = glm::scale(model, glm::vec3(glm::vec2(rectangle -> scale), 0));
-    glm::mat4 mvp = model;
+    glm::dmat4 model = glm::dmat4(1);
+              model = glm::translate(model, glm::dvec3(rectangle -> position));
+              model = glm::rotate(model, rectangle -> rotation.x, {1, 0, 0});
+              model = glm::rotate(model, rectangle -> rotation.y, {0, 1, 0});
+              model = glm::rotate(model, rectangle -> rotation.z, {0, 0, 1});
+              model = glm::scale(model, glm::dvec3(rectangle -> scale, 0));
+    glm::mat4 mvp = vp * model;
 
     glBindVertexArray(rectangle_vao);
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
@@ -178,9 +184,33 @@ void scppr::scppr::draw()
   glfwSwapBuffers(window);
   glfwPollEvents();
 }
-void scppr::scppr::set_camera(double fov, glm::dvec3 eye, glm::dvec3 point)
+
+void scppr::scppr::set_camera(double fov, glm::dvec3 eye, double pitch, double roll, double yaw, uint32_t flags)
 {
-  this -> camera_fov = fov;
-  this -> camera_eye = eye;
-  this -> camera_point = point;
+  if(flags & SCPPR_CAMERA_FOV)
+  {
+    this -> camera_fov = fov;
+  }
+  if(flags & SCPPR_CAMERA_EYE)
+  {
+    this -> camera_eye = eye;
+  }
+  if(flags & SCPPR_CAMERA_PITCH)
+  {
+    this -> camera_pitch = pitch;
+  }
+  if(flags & SCPPR_CAMERA_ROLL)
+  {
+    this -> camera_roll = roll;
+  }
+  if(flags & SCPPR_CAMERA_YAW)
+  {
+    this -> camera_yaw = yaw;
+  }
+  camera_front.x = cos(camera_yaw) * cos(camera_pitch);
+  camera_front.y = sin(camera_pitch);
+  camera_front.z = sin(camera_yaw) * cos(camera_pitch);
+  camera_front = glm::normalize(camera_front);
+  camera_right = glm::normalize(glm::cross(camera_front, {0, 1, 0}));
+  camera_up    = glm::normalize(glm::cross(camera_right, camera_front));
 }
