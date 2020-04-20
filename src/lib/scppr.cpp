@@ -86,6 +86,12 @@ scppr::scppr::scppr(std::string name)
   scppr_ASSERT(window, "failed to create glfw window");
   glfwMakeContextCurrent(window);
 
+  scppr_LOG("attaching listeners");
+  glfwSetWindowUserPointer(window, this);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback_wrap);
+  glfwSetCursorPosCallback(window, mouse_callback_wrap);
+  glfwSetScrollCallback(window, scroll_callback_wrap);
+
   scppr_LOG("extracting gl context");
   scppr_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "failed to load glad");
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -213,4 +219,35 @@ void scppr::scppr::set_camera(double fov, glm::dvec3 eye, double pitch, double r
   camera_front = glm::normalize(camera_front);
   camera_right = glm::normalize(glm::cross(camera_front, {0, 1, 0}));
   camera_up    = glm::normalize(glm::cross(camera_right, camera_front));
+}
+
+void scppr::scppr::framebuffer_size_callback_wrap(GLFWwindow* window, int width, int height)
+{
+  scppr *that = (scppr *)glfwGetWindowUserPointer(window);
+  that -> framebuffer_size_callback(window, width, height);
+}
+
+void scppr::scppr::mouse_callback_wrap(GLFWwindow* window, double xpos, double ypos)
+{
+  scppr *that = (scppr *)glfwGetWindowUserPointer(window);
+  that -> mouse_callback(window, xpos, ypos);
+}
+
+void scppr::scppr::scroll_callback_wrap(GLFWwindow* window, double xoffset, double yoffset)
+{
+  scppr *that = (scppr *)glfwGetWindowUserPointer(window);
+  that -> scroll_callback(window, xoffset, yoffset);
+}
+
+void scppr::scppr::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+}
+
+void scppr::scppr::mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+}
+
+void scppr::scppr::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
 }

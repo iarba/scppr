@@ -44,6 +44,9 @@ namespace scppr
   class scppr
   {
   public:
+    static void framebuffer_size_callback_wrap(GLFWwindow* window, int width, int height);
+    static void mouse_callback_wrap(GLFWwindow* window, double xpos, double ypos);
+    static void scroll_callback_wrap(GLFWwindow* window, double xoffset, double yoffset);
     scppr(std::string name);
     ~scppr();
     void add_rectangle(rectangle_t *rectangle);
@@ -53,6 +56,9 @@ namespace scppr
     void set_camera(double fov, glm::dvec3 eye, double pitch, double roll, double yaw, uint32_t flags);
     GLFWwindow *window;
   private:
+    void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+    void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     int height = default_width;
     int width = default_height;
     GLuint program;
