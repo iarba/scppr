@@ -48,7 +48,26 @@ namespace scppr
     glm::dvec3 rotation = {0, 0, 0};
     glm::dvec2 scale = {1, 1};
     texture_t *texture;
-    // do not fiddle with these
+  };
+
+  class cube_t
+  {
+  public:
+    cube_t();
+    ~cube_t();
+    glm::dvec3 position = {0, 0, 0};
+    glm::dvec3 rotation = {0, 0, 0};
+    glm::dvec3 scale = {1, 1, 1};
+    texture_t *texture;
+  };
+
+  class light_t
+  {
+  public:
+    light_t();
+    ~light_t();
+    glm::dvec3 position = {0, 0, 0};
+    glm::dvec3 color = {1, 1, 1};
   };
 
   class scppr
@@ -58,6 +77,10 @@ namespace scppr
     ~scppr();
     void add_rectangle(rectangle_t *rectangle);
     void remove_rectangle(rectangle_t *rectangle);
+    void add_cube(cube_t *cube);
+    void remove_cube(cube_t *cube);
+    void add_light(light_t *light);
+    void remove_light(light_t *light);
     void add_listener(listener_t cbt, void *function);
     void remove_listener(listener_t cbt);
     bool is_open();
@@ -78,7 +101,8 @@ namespace scppr
     void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     int height = default_width;
     int width = default_height;
-    GLuint program;
+    GLuint simple_light_program;
+    GLuint light_program;
     double camera_fov;
     glm::dvec3 camera_eye;
     glm::dvec3 camera_point;
@@ -91,7 +115,12 @@ namespace scppr
     GLuint rectangle_vao;
     GLuint rectangle_vbo;
     GLuint rectangle_ebo;
+    GLuint cube_vao;
+    GLuint cube_vbo;
+    GLuint light_vao;
     std::set<rectangle_t *> rectangles;
+    std::set<cube_t *> cubes;
+    std::set<light_t *> lights;
     std::map<listener_t, void *> listeners;
   };
 }

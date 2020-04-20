@@ -93,9 +93,24 @@ int main()
   scppr::scppr renderer("Scene explorer");
   scppr::texture_t *texture = new scppr::texture_t("../assets/wall.jpg");
   scppr::rectangle_t *rectangle = new scppr::rectangle_t();
-  rectangle -> texture = texture;
-  rectangle -> rotation.x = glm::radians(90.0);
+                      rectangle -> texture = texture;
+                      rectangle -> rotation.x = glm::radians(90.0);
+  scppr::cube_t *cube1 = new scppr::cube_t();
+                 cube1 -> texture = texture;
+                 cube1 -> position.x = -5;
+  scppr::cube_t *cube2 = new scppr::cube_t();
+                 cube2 -> texture = texture;
+                 cube2 -> position.x = 5;
+  scppr::light_t *light1 = new scppr::light_t();
+                  light1 -> position = {0, 10, -5};
+                  light1 -> color = {0, 1, 0};
+  scppr::light_t *light2 = new scppr::light_t();
+                  light2 -> position = {0, -10, 5};
   renderer.add_rectangle(rectangle);
+  renderer.add_cube(cube1);
+  renderer.add_cube(cube2);
+  renderer.add_light(light1);
+  renderer.add_light(light2);
   renderer.add_listener(scppr::scroll_listener, (void *)&scroll_callback);
   renderer.add_listener(scppr::mouse_listener, (void *)&mouse_callback);
   renderer.add_listener(scppr::click_listener, (void *)&click_callback);
@@ -112,6 +127,10 @@ int main()
     renderer.draw();
   }
   delete rectangle;
+  delete cube1;
+  delete cube2;
+  delete light1;
+  delete light2;
   delete texture;
   return 0;
 }

@@ -22,7 +22,7 @@ bool scppr_initialised = false;
  *       -x
  *
  */
-static const float square_vertices[] = 
+static const float square_vertices[] =
 {
    0.5f,  0.0f,  0.5f, 1.0f, 1.0f, // 0
    0.5f,  0.0f, -0.5f, 1.0f, 0.0f, // 1
@@ -30,9 +30,50 @@ static const float square_vertices[] =
   -0.5f,  0.0f,  0.5f, 0.0f, 1.0f  // 3
 };
 
-unsigned int square_indices[] = {
+static const unsigned int square_indices[] =
+{
   0, 1, 3,
   1, 2, 3
+};
+
+static const float cube_vertices[] =
+{
+  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+   0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+  -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+  -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+   0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+   0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+  -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
 void scppr_error_callback(int error, const char* description)
@@ -71,6 +112,22 @@ scppr::rectangle_t::~rectangle_t()
 {
 }
 
+scppr::cube_t::cube_t()
+{
+}
+
+scppr::cube_t::~cube_t()
+{
+}
+
+scppr::light_t::light_t()
+{
+}
+
+scppr::light_t::~light_t()
+{
+}
+
 scppr::scppr::scppr(std::string name)
 {
   scppr_ASSERT(!scppr_initialised, "scppr is not initialised");
@@ -106,23 +163,60 @@ scppr::scppr::scppr(std::string name)
   glGenBuffers(1, &rectangle_vbo);
   glGenBuffers(1, &rectangle_ebo);
 
-  scppr_LOG("populating buffers");
+  scppr_LOG("populating buffer with rectangle");
   glBindVertexArray(rectangle_vao);
   glBindBuffer(GL_ARRAY_BUFFER, rectangle_vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectangle_ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW); 
 
-  scppr_LOG("defining buffer structure");
+  scppr_LOG("defining buffer structure for rectangle");
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
+
+  scppr_LOG("unbinding buffer");
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  scppr_LOG("creating cube buffers");
+  glGenVertexArrays(1, &cube_vao);
+  glGenBuffers(1, &cube_vbo);
+
+  scppr_LOG("populating buffer with cube")
+  glBindVertexArray(cube_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
+
+  scppr_LOG("defining buffer structure for cube");
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+
+  scppr_LOG("unbinding buffer");
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
+  scppr_LOG("creating light buffers");
+  glGenVertexArrays(1, &light_vao);
+
+  scppr_LOG("populating buffer with light")
+  glBindVertexArray(light_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
+
+  scppr_LOG("defining buffer structure for light");
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+
+  scppr_LOG("unbinding buffer");
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
   scppr_LOG("creating gl render program");
-  program = load_program("simple");
+  simple_light_program = load_program("simple_light");
+  light_program = load_program("light");
 
   scppr_LOG("initialising camera");
   set_camera(M_PI / 2, { 0.0, 3.0, 0.0},  -M_PI / 2, 0.0, 0.0, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
@@ -136,6 +230,9 @@ scppr::scppr::~scppr()
   glDeleteVertexArrays(1, &rectangle_vao);
   glDeleteBuffers(1, &rectangle_vbo);
   glDeleteBuffers(1, &rectangle_ebo);
+  glDeleteVertexArrays(1, &cube_vao);
+  glDeleteBuffers(1, &cube_vbo);
+  glDeleteVertexArrays(1, &light_vao);
   scppr_initialised = false;
   glfwDestroyWindow(window);
   glfwTerminate();
@@ -149,6 +246,26 @@ void scppr::scppr::add_rectangle(rectangle_t *rectangle)
 void scppr::scppr::remove_rectangle(rectangle_t *rectangle)
 {
   rectangles.erase(rectangle);
+}
+
+void scppr::scppr::add_cube(cube_t *cube)
+{
+  cubes.insert(cube);
+}
+
+void scppr::scppr::remove_cube(cube_t *cube)
+{
+  cubes.erase(cube);
+}
+
+void scppr::scppr::add_light(light_t *light)
+{
+  lights.insert(light);
+}
+
+void scppr::scppr::remove_light(light_t *light)
+{
+  lights.erase(light);
 }
 
 void scppr::scppr::add_listener(listener_t cbt, void *function)
@@ -180,12 +297,17 @@ void scppr::scppr::draw()
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  scppr_LOG("running program");
-  glUseProgram(program);
   glm::dmat4 projection = glm::perspective(camera_fov, (double)width / (double)height, 0.1, 100.0);
   glm::dmat4 view = glm::lookAt(camera_eye, (camera_eye + camera_front), camera_up);
   view = glm::rotate(view, camera_roll, camera_front);
   glm::dmat4 vp = projection * view;
+
+  scppr_LOG("running programs");
+  GLuint program;
+
+  glUseProgram(simple_light_program);
+  program = simple_light_program;
+  glBindVertexArray(rectangle_vao);
   for(auto rectangle : rectangles)
   {
     glm::dmat4 model = glm::dmat4(1);
@@ -196,14 +318,55 @@ void scppr::scppr::draw()
               model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
     glm::mat4 mvp = vp * model;
 
-    glBindVertexArray(rectangle_vao);
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
+    glUniform3f(glGetUniformLocation(program, "light_color"), 1, 1, 1);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, rectangle -> texture -> t_id);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
   }
+  glBindVertexArray(0);
+
+  glUseProgram(simple_light_program);
+  program = simple_light_program;
+  glBindVertexArray(cube_vao);
+  for(auto cube : cubes)
+  {
+    glm::dmat4 model = glm::dmat4(1);
+              model = glm::translate(model, glm::dvec3(cube -> position));
+              model = glm::rotate(model, cube -> rotation.x, {1, 0, 0});
+              model = glm::rotate(model, cube -> rotation.y, {0, 1, 0});
+              model = glm::rotate(model, cube -> rotation.z, {0, 0, 1});
+              model = glm::scale(model, cube -> scale);
+    glm::mat4 mvp = vp * model;
+
+    glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
+    glUniform3f(glGetUniformLocation(program, "light_color"), 1, 1, 1);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, cube -> texture -> t_id);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+  }
+  glBindVertexArray(0);
+
+  glUseProgram(light_program);
+  program = light_program;
+  glBindVertexArray(light_vao);
+  for(auto light : lights)
+  {
+    glm::dmat4 model = glm::dmat4(1);
+              model = glm::translate(model, glm::dvec3(light -> position));
+    glm::mat4 mvp = vp * model;
+
+    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
+    glUniform3f(glGetUniformLocation(program, "object_color"), light -> color.x, light -> color.y, light -> color.z);
+
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+  }
+  glBindVertexArray(0);
+
   glfwSwapBuffers(window);
 }
 
