@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(scppr)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
+file(GLOB_RECURSE LIB_SOURCES "src/lib/*.cpp" "src/lib/*.c")
+file(GLOB_RECURSE EX01_SOURCES "src/example/01/*.cpp" "src/example/01/*.c")
 
 add_subdirectory(dep/glm)
 add_subdirectory(dep/glfw)
@@ -16,4 +17,7 @@ include_directories()
 link_directories()
 link_libraries(glm glfw)
 
-add_executable(scppr_example ${SOURCES})
+add_library(scppr STATIC ${LIB_SOURCES})
+
+add_executable(scppr_example01 ${EX01_SOURCES})
+target_link_libraries(scppr_example01 scppr)
