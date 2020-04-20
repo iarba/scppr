@@ -6,28 +6,28 @@
 
 bool scppr_initialised = false;
 
-/*        y
+/*        x
  *
  *        A
  *        |
- *     4      1
+ *     1     0
  *      *---*
- *      |  /|
- *-x <- | 0 | -> x
- *      |/  |
+ *      |\  |
+ *-z <- | 0 | -> z
+ *      |  \|
  *      *---*
- *     3      2 ->x
+ *     2     3
  *        |
  *        V
- *       -y
+ *       -x
  *
  */
 static const float square_vertices[] = 
 {
-   0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // 1
-   0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // 2
-  -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // 3
-  -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // 4
+   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, // 0
+   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, // 1
+  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, // 2
+  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f  // 3
 };
 
 unsigned int square_indices[] = {
@@ -117,7 +117,7 @@ scppr::scppr::scppr(std::string name)
   program = load_program();
 
   scppr_LOG("initialising camera");
-  set_camera(M_PI / 2, {0, 0, 1}, 0.0, 0, -M_PI / 2, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
+  set_camera(M_PI / 2, { 0.0, 3.0, 0.0},  -M_PI / 2, 0.0, 0.0, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
 
   scppr_initialised = true;
   scppr_LOG("scppr initialised successfully");
@@ -170,7 +170,7 @@ void scppr::scppr::draw()
               model = glm::rotate(model, rectangle -> rotation.x, {1, 0, 0});
               model = glm::rotate(model, rectangle -> rotation.y, {0, 1, 0});
               model = glm::rotate(model, rectangle -> rotation.z, {0, 0, 1});
-              model = glm::scale(model, glm::dvec3(rectangle -> scale, 0));
+              model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
     glm::mat4 mvp = vp * model;
 
     glBindVertexArray(rectangle_vao);
