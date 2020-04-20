@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>
-#include <vector>
+#include <set>
+#include <map>
 
 namespace scppr
 {
@@ -16,6 +17,13 @@ namespace scppr
   static const uint32_t SCPPR_CAMERA_PITCH = 4;
   static const uint32_t SCPPR_CAMERA_ROLL = 8;
   static const uint32_t SCPPR_CAMERA_YAW = 16;
+
+  // enums
+  enum listener_t
+  {
+    mouse_listener,
+    scroll_listener
+  };
 
   static int default_width = 800;
   static int default_height = 800;
@@ -44,18 +52,21 @@ namespace scppr
   class scppr
   {
   public:
-    static void framebuffer_size_callback_wrap(GLFWwindow* window, int width, int height);
-    static void mouse_callback_wrap(GLFWwindow* window, double xpos, double ypos);
-    static void scroll_callback_wrap(GLFWwindow* window, double xoffset, double yoffset);
     scppr(std::string name);
     ~scppr();
     void add_rectangle(rectangle_t *rectangle);
+    void remove_rectangle(rectangle_t *rectangle);
+    void add_listener(listener_t cbt, void *function);
+    void remove_listener(listener_t cbt);
     bool is_open();
     void poll();
     void draw();
     void set_camera(double fov, glm::dvec3 eye, double pitch, double roll, double yaw, uint32_t flags);
     GLFWwindow *window;
   private:
+    static void framebuffer_size_callback_wrap(GLFWwindow* window, int width, int height);
+    static void mouse_callback_wrap(GLFWwindow* window, double xpos, double ypos);
+    static void scroll_callback_wrap(GLFWwindow* window, double xoffset, double yoffset);
     void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -74,7 +85,8 @@ namespace scppr
     GLuint rectangle_vao;
     GLuint rectangle_vbo;
     GLuint rectangle_ebo;
-    std::vector<rectangle_t *> rectangles;
+    std::set<rectangle_t *> rectangles;
+    std::map<listener_t, void *> listeners;
   };
 }
 

@@ -141,7 +141,22 @@ scppr::scppr::~scppr()
 
 void scppr::scppr::add_rectangle(rectangle_t *rectangle)
 {
-  rectangles.push_back(rectangle);
+  rectangles.insert(rectangle);
+}
+
+void scppr::scppr::remove_rectangle(rectangle_t *rectangle)
+{
+  rectangles.erase(rectangle);
+}
+
+void scppr::scppr::add_listener(listener_t cbt, void *function)
+{
+  listeners[cbt] = function;
+}
+
+void scppr::scppr::remove_listener(listener_t cbt)
+{
+  listeners.erase(cbt);
 }
 
 bool scppr::scppr::is_open()
@@ -188,7 +203,6 @@ void scppr::scppr::draw()
     glBindVertexArray(0);
   }
   glfwSwapBuffers(window);
-  glfwPollEvents();
 }
 
 void scppr::scppr::set_camera(double fov, glm::dvec3 eye, double pitch, double roll, double yaw, uint32_t flags)
@@ -246,8 +260,20 @@ void scppr::scppr::framebuffer_size_callback(GLFWwindow* window, int width, int 
 
 void scppr::scppr::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+  auto it = listeners.find(mouse_listener);
+  if(it != listeners.end())
+  {
+    void (*cb)(GLFWwindow *, double, double) = (void (*)(GLFWwindow *, double, double))it -> second;
+    (*cb)(window, xpos, ypos);
+  }
 }
 
 void scppr::scppr::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+  auto it = listeners.find(scroll_listener);
+  if(it != listeners.end())
+  {
+    void (*cb)(GLFWwindow *, double, double) = (void (*)(GLFWwindow *, double, double))it -> second;
+    (*cb)(window, xoffset, yoffset);
+  }
 }
