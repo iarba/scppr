@@ -22,7 +22,9 @@ namespace scppr
   enum listener_t
   {
     mouse_listener,
-    scroll_listener
+    scroll_listener,
+    click_listener,
+    keyboard_listener
   };
 
   static int default_width = 800;
@@ -67,9 +69,13 @@ namespace scppr
     static void framebuffer_size_callback_wrap(GLFWwindow* window, int width, int height);
     static void mouse_callback_wrap(GLFWwindow* window, double xpos, double ypos);
     static void scroll_callback_wrap(GLFWwindow* window, double xoffset, double yoffset);
+    static void click_callback_wrap(GLFWwindow* window, int button, int state, int mods);
+    static void keyboard_callback_wrap(GLFWwindow* window, int key, int scancode, int action, int mods);
     void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    void click_callback(GLFWwindow* window, int button, int state, int mods);
+    void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     int height = default_width;
     int width = default_height;
     GLuint program;

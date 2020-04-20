@@ -91,6 +91,8 @@ scppr::scppr::scppr(std::string name)
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback_wrap);
   glfwSetCursorPosCallback(window, mouse_callback_wrap);
   glfwSetScrollCallback(window, scroll_callback_wrap);
+  glfwSetMouseButtonCallback(window, click_callback_wrap);
+  glfwSetKeyCallback(window, keyboard_callback_wrap);
 
   scppr_LOG("extracting gl context");
   scppr_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "failed to load glad");
@@ -120,7 +122,7 @@ scppr::scppr::scppr(std::string name)
   glBindVertexArray(0);
 
   scppr_LOG("creating gl render program");
-  program = load_program();
+  program = load_program("simple");
 
   scppr_LOG("initialising camera");
   set_camera(M_PI / 2, { 0.0, 3.0, 0.0},  -M_PI / 2, 0.0, 0.0, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
@@ -253,6 +255,18 @@ void scppr::scppr::scroll_callback_wrap(GLFWwindow* window, double xoffset, doub
   that -> scroll_callback(window, xoffset, yoffset);
 }
 
+void scppr::scppr::click_callback_wrap(GLFWwindow* window, int button, int state, int mods)
+{
+  scppr *that = (scppr *)glfwGetWindowUserPointer(window);
+  that -> click_callback(window, button, state, mods);
+}
+
+void scppr::scppr::keyboard_callback_wrap(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  scppr *that = (scppr *)glfwGetWindowUserPointer(window);
+  that -> keyboard_callback(window, key, scancode, action, mods);
+}
+
 void scppr::scppr::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   glViewport(0, 0, width, height);
@@ -275,5 +289,25 @@ void scppr::scppr::scroll_callback(GLFWwindow* window, double xoffset, double yo
   {
     void (*cb)(GLFWwindow *, double, double) = (void (*)(GLFWwindow *, double, double))it -> second;
     (*cb)(window, xoffset, yoffset);
+  }
+}
+
+void scppr::scppr::click_callback(GLFWwindow* window, int button, int state, int mods)
+{
+  auto it = listeners.find(click_listener);
+  if(it != listeners.end())
+  {
+    void (*cb)(GLFWwindow *, int, int, int) = (void (*)(GLFWwindow *, int, int, int))it -> second;
+    (*cb)(window, button, state, mods);
+  }
+}
+
+void scppr::scppr::keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  auto it = listeners.find(keyboard_listener);
+  if(it != listeners.end())
+  {
+    void (*cb)(GLFWwindow *, int, int, int, int) = (void (*)(GLFWwindow *, int, int, int, int))it -> second;
+    (*cb)(window, key, scancode, action, mods);
   }
 }
