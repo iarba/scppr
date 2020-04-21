@@ -356,6 +356,7 @@ void scppr::scppr::draw()
     glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
     glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
     glUniform3fv(glGetUniformLocation(program, "light.specular"), 1, &f_ls[0]);
+    glUniform1f(glGetUniformLocation(program, "light.strength"), light -> strength);
     glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
     glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
     glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
@@ -408,6 +409,7 @@ void scppr::scppr::draw()
     glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
     glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
     glUniform3fv(glGetUniformLocation(program, "light.specular"), 1, &f_ls[0]);
+    glUniform1f(glGetUniformLocation(program, "light.strength"), light -> strength);
     glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
     glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
     glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);

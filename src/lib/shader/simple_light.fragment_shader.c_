@@ -13,6 +13,7 @@ struct light_t
   vec3 ambient;
   vec3 diffuse;
   vec3 specular;
+  float strength;
 };
 
 in vec3 f_pos;
@@ -31,13 +32,15 @@ void main()
   vec3 light_dir = normalize(light.position - f_pos);
   vec3 view_dir = normalize(-f_pos);
   vec3 reflect_dir = reflect(-light_dir, norm);
+  float distance = length(light.position - f_pos);
+  float attenuation = max(1 - distance / light.strength, 0);
 
   float diffuse_strength = max(dot(norm, light_dir), 0.0);
   float specular_strength = 0.5 * pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
 
-  vec3 ambient_light  = light.ambient  *                     vec3(texture(material.diffuse, f_coord));
-  vec3 diffuse_light  = light.diffuse  * diffuse_strength  * vec3(texture(material.diffuse, f_coord));
-  vec3 specular_light = light.specular * specular_strength * vec3(texture(material.specular, f_coord));
+  vec3 ambient_light  = attenuation * light.ambient  *                     vec3(texture(material.diffuse, f_coord));
+  vec3 diffuse_light  = attenuation * light.diffuse  * diffuse_strength  * vec3(texture(material.diffuse, f_coord));
+  vec3 specular_light = attenuation * light.specular * specular_strength * vec3(texture(material.specular, f_coord));
 
   color = vec4(ambient_light + diffuse_light + specular_light, 1);
 }

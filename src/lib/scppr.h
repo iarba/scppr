@@ -72,6 +72,7 @@ namespace scppr
     glm::dvec3 ambient = {0.2, 0.2, 0.2};
     glm::dvec3 color = {1, 1, 1};
     glm::dvec3 specular = {1, 1, 1};
+    double strength = 1000000;
   };
 
   class scppr
