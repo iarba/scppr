@@ -24,10 +24,10 @@ bool scppr_initialised = false;
  */
 static const float square_vertices[] =
 {
-   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, // 0
-   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, // 1
-  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, // 2
-  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f  // 3
+   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // 0
+   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 1
+  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 2
+  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // 3
 };
 
 static const unsigned int square_indices[] =
@@ -315,18 +315,25 @@ void scppr::scppr::draw()
   for(auto rectangle : rectangles)
   {
     glm::dmat4 model = glm::dmat4(1);
-              model = glm::translate(model, glm::dvec3(rectangle -> position));
-              model = glm::rotate(model, rectangle -> rotation.x, {1, 0, 0});
-              model = glm::rotate(model, rectangle -> rotation.y, {0, 1, 0});
-              model = glm::rotate(model, rectangle -> rotation.z, {0, 0, 1});
-              model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
+               model = glm::translate(model, glm::dvec3(rectangle -> position));
+               model = glm::rotate(model, rectangle -> rotation.x, {1, 0, 0});
+               model = glm::rotate(model, rectangle -> rotation.y, {0, 1, 0});
+               model = glm::rotate(model, rectangle -> rotation.z, {0, 0, 1});
+               model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
 
     glm::mat4 f_m = model;
-    glm::mat4 f_vp = vp;
+    glm::mat4 f_v = view;
+    glm::mat4 f_p = projection;
+    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
+    glm::vec3 f_lc = {1.0, 1.0, 1.0};
+    glm::vec3 f_lp = {0, -10, 5};
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, &f_vp[0][0]);
-    glUniform3f(glGetUniformLocation(program, "light_color"), 1, 1, 1);
+    glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
+    glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
+    glUniform3fv(glGetUniformLocation(program, "light"), 1, &f_lp[0]);
+    glUniform3fv(glGetUniformLocation(program, "light_color"), 1, &f_lc[0]);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, rectangle -> texture -> t_id);
@@ -340,18 +347,25 @@ void scppr::scppr::draw()
   for(auto cube : cubes)
   {
     glm::dmat4 model = glm::dmat4(1);
-              model = glm::translate(model, glm::dvec3(cube -> position));
-              model = glm::rotate(model, cube -> rotation.x, {1, 0, 0});
-              model = glm::rotate(model, cube -> rotation.y, {0, 1, 0});
-              model = glm::rotate(model, cube -> rotation.z, {0, 0, 1});
-              model = glm::scale(model, cube -> scale);
+               model = glm::translate(model, glm::dvec3(cube -> position));
+               model = glm::rotate(model, cube -> rotation.x, {1, 0, 0});
+               model = glm::rotate(model, cube -> rotation.y, {0, 1, 0});
+               model = glm::rotate(model, cube -> rotation.z, {0, 0, 1});
+               model = glm::scale(model, cube -> scale);
 
     glm::mat4 f_m = model;
-    glm::mat4 f_vp = vp;
+    glm::mat4 f_v = view;
+    glm::mat4 f_p = projection;
+    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
+    glm::vec3 f_lc = {1.0, 1.0, 1.0};
+    glm::vec3 f_lp = {0, -10, 5};
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
-    glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, &f_vp[0][0]);
-    glUniform3f(glGetUniformLocation(program, "light_color"), 1, 1, 1);
+    glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
+    glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
+    glUniform3fv(glGetUniformLocation(program, "light"), 1, &f_lp[0]);
+    glUniform3fv(glGetUniformLocation(program, "light_color"), 1, &f_lc[0]);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, cube -> texture -> t_id);
