@@ -4,6 +4,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "lib/texture/stb_image.h"
 
+GLint glGetUniformLocation_str(GLint program, std::string location)
+{
+  return glGetUniformLocation(program, location.c_str());
+}
+
 bool scppr_initialised = false;
 
 /*        x
@@ -242,6 +247,12 @@ scppr::scppr::scppr(std::string name)
 
   default_texture = new texture_t("../assets/no_texture.png");
   default_specular_texture = new texture_t("../assets/black.jpg");
+  default_ambient = new light_t();
+  default_ambient -> ambient = {0.15, 0.15, 0.15};
+  default_ambient -> color = {0, 0, 0};
+  default_ambient -> specular = {0, 0, 0};
+  default_ambient -> hidden = true;
+  add_light(default_ambient);
   scppr_LOG("scppr initialised successfully");
 }
 
@@ -249,6 +260,7 @@ scppr::scppr::~scppr()
 {
   delete default_texture;
   delete default_specular_texture;
+  delete default_ambient;
   glDeleteVertexArrays(1, &rectangle_vao);
   glDeleteBuffers(1, &rectangle_vbo);
   glDeleteBuffers(1, &rectangle_ebo);
@@ -332,6 +344,10 @@ void scppr::scppr::draw()
   glBindVertexArray(rectangle_vao);
   for(auto rectangle : rectangles)
   {
+    if(rectangle -> hidden)
+    {
+      continue;
+    }
     glm::dmat4 model = glm::dmat4(1);
                model = glm::translate(model, glm::dvec3(rectangle -> position));
                model = glm::rotate(model, rectangle -> rotation.x, {1, 0, 0});
@@ -340,32 +356,40 @@ void scppr::scppr::draw()
                model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
 
     glm::mat4 f_m = model;
-    glm::mat4 f_v = view;
-    glm::mat4 f_p = projection;
-    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
-    light_t *light = *(lights.begin());
-    glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
-    glm::vec3 f_la = light -> ambient;
-    glm::vec3 f_lc = light -> color;
-    glm::vec3 f_ls = light -> specular;
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
+    glm::mat4 f_v = view;
     glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
+    glm::mat4 f_p = projection;
     glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
+    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
     glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
-    glUniform3fv(glGetUniformLocation(program, "light.position"), 1, &f_lp[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.specular"), 1, &f_ls[0]);
-    glUniform1f(glGetUniformLocation(program, "light.strength"), light -> strength);
-    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
-    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
-    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
+    int count = 0;
+    for(light_t *light : lights)
+    {
+      if(!light -> active)
+      {
+        continue;
+      }
+      glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
+      std::string header = "lights[" + std::to_string(count) + "]";
+      glUniform3fv(glGetUniformLocation_str(program, header + ".position"), 1, &f_lp[0]);
+      glm::vec3 f_la = light -> ambient;
+      glUniform3fv(glGetUniformLocation_str(program, header + ".ambient"), 1, &f_la[0]);
+      glm::vec3 f_lc = light -> color;
+      glUniform3fv(glGetUniformLocation_str(program, header + ".diffuse"), 1, &f_lc[0]);
+      glm::vec3 f_ls = light -> specular;
+      glUniform3fv(glGetUniformLocation_str(program, header + ".specular"), 1, &f_ls[0]);
+      glUniform1f(glGetUniformLocation_str(program, header + ".strength"), light -> strength);
+      count++;
+    }
+    glUniform1i(glGetUniformLocation(program, "light_no"), count);
 
     GLuint t_id = default_texture -> t_id;
     if(rectangle -> texture)
     {
       t_id = rectangle -> texture -> t_id;
     }
+    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, t_id);
     t_id = default_specular_texture -> t_id;
@@ -373,8 +397,10 @@ void scppr::scppr::draw()
     {
       t_id = rectangle -> specular_texture -> t_id;
     }
+    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, t_id);
+    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   }
@@ -385,6 +411,10 @@ void scppr::scppr::draw()
   glBindVertexArray(cube_vao);
   for(auto cube : cubes)
   {
+    if(cube -> hidden)
+    {
+      continue;
+    }
     glm::dmat4 model = glm::dmat4(1);
                model = glm::translate(model, glm::dvec3(cube -> position));
                model = glm::rotate(model, cube -> rotation.x, {1, 0, 0});
@@ -393,32 +423,40 @@ void scppr::scppr::draw()
                model = glm::scale(model, cube -> scale);
 
     glm::mat4 f_m = model;
-    glm::mat4 f_v = view;
-    glm::mat4 f_p = projection;
-    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
-    light_t *light = *(lights.begin());
-    glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
-    glm::vec3 f_la = light -> ambient;
-    glm::vec3 f_lc = light -> color;
-    glm::vec3 f_ls = light -> specular;
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
+    glm::mat4 f_v = view;
     glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
+    glm::mat4 f_p = projection;
     glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
+    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
     glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
-    glUniform3fv(glGetUniformLocation(program, "light.position"), 1, &f_lp[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.specular"), 1, &f_ls[0]);
-    glUniform1f(glGetUniformLocation(program, "light.strength"), light -> strength);
-    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
-    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
-    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
+    int count = 0;
+    for(light_t *light : lights)
+    {
+      if(!light -> active)
+      {
+        continue;
+      }
+      glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
+      std::string header = "lights[" + std::to_string(count) + "]";
+      glUniform3fv(glGetUniformLocation_str(program, header + ".position"), 1, &f_lp[0]);
+      glm::vec3 f_la = light -> ambient;
+      glUniform3fv(glGetUniformLocation_str(program, header + ".ambient"), 1, &f_la[0]);
+      glm::vec3 f_lc = light -> color;
+      glUniform3fv(glGetUniformLocation_str(program, header + ".diffuse"), 1, &f_lc[0]);
+      glm::vec3 f_ls = light -> specular;
+      glUniform3fv(glGetUniformLocation_str(program, header + ".specular"), 1, &f_ls[0]);
+      glUniform1f(glGetUniformLocation_str(program, header + ".strength"), light -> strength);
+      count++;
+    }
+    glUniform1i(glGetUniformLocation(program, "light_no"), count);
 
     GLuint t_id = default_texture -> t_id;
     if(cube -> texture)
     {
       t_id = cube -> texture -> t_id;
     }
+    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, t_id);
     t_id = default_specular_texture -> t_id;
@@ -426,8 +464,10 @@ void scppr::scppr::draw()
     {
       t_id = cube -> specular_texture -> t_id;
     }
+    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, t_id);
+    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
   }
@@ -438,6 +478,10 @@ void scppr::scppr::draw()
   glBindVertexArray(light_vao);
   for(auto light : lights)
   {
+    if(light -> hidden)
+    {
+      continue;
+    }
     glm::dmat4 model = glm::dmat4(1);
               model = glm::translate(model, glm::dvec3(light -> position));
     glm::mat4 mvp = vp * model;

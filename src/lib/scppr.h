@@ -49,6 +49,8 @@ namespace scppr
     glm::dvec2 scale = {1, 1};
     texture_t *texture = NULL;
     texture_t *specular_texture = NULL;
+    bool hidden = false;
+    bool active = true;
   };
 
   class cube_t
@@ -61,6 +63,8 @@ namespace scppr
     glm::dvec3 scale = {1, 1, 1};
     texture_t *texture = NULL;
     texture_t *specular_texture = NULL;
+    bool hidden = false;
+    bool active = true;
   };
 
   class light_t
@@ -73,6 +77,8 @@ namespace scppr
     glm::dvec3 color = {1, 1, 1};
     glm::dvec3 specular = {1, 1, 1};
     double strength = 1000000;
+    bool hidden = true;
+    bool active = true;
   };
 
   class scppr
@@ -129,6 +135,7 @@ namespace scppr
     std::map<listener_t, void *> listeners;
     texture_t *default_texture;
     texture_t *default_specular_texture;
+    light_t *default_ambient;
   };
 }
 

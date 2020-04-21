@@ -1,5 +1,7 @@
 #version 330 core
 
+#define MAX_LIGHTS 32
+
 struct material_t
 {
   sampler2D diffuse;
@@ -24,17 +26,15 @@ in vec3 light_pos;
 out vec4 color;
 
 uniform material_t material;
-uniform light_t light;
+uniform int light_no;
+uniform light_t lights[MAX_LIGHTS];
 
-void main()
+vec3 point_light(light_t light, vec3 norm, vec3 view_dir)
 {
-  vec3 norm = normalize(f_norm);
   vec3 light_dir = normalize(light.position - f_pos);
-  vec3 view_dir = normalize(-f_pos);
   vec3 reflect_dir = reflect(-light_dir, norm);
   float distance = length(light.position - f_pos);
   float attenuation = max(1 - distance / light.strength, 0);
-
   float diffuse_strength = max(dot(norm, light_dir), 0.0);
   float specular_strength = 0.5 * pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
 
@@ -42,5 +42,17 @@ void main()
   vec3 diffuse_light  = attenuation * light.diffuse  * diffuse_strength  * vec3(texture(material.diffuse, f_coord));
   vec3 specular_light = attenuation * light.specular * specular_strength * vec3(texture(material.specular, f_coord));
 
-  color = vec4(ambient_light + diffuse_light + specular_light, 1);
+  return ambient_light + diffuse_light + specular_light;
+}
+
+void main()
+{
+  vec3 norm = normalize(f_norm);
+  vec3 view_dir = normalize(-f_pos);
+  vec3 acc = vec3(0, 0, 0);
+  for(int i = 0; i < light_no; i++)
+  {
+    acc += point_light(lights[i], norm, view_dir);
+  }
+  color = vec4(acc, 1);
 }
