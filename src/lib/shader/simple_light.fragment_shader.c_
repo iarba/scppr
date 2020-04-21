@@ -33,7 +33,7 @@ void main()
   vec3 reflect_dir = reflect(-light_dir, norm);
 
   float diffuse_strength = max(dot(norm, light_dir), 0.0);
-  float specular_strength = 0.5 * pow(max(dot(view_dir, reflect_dir), 0.0), 32);
+  float specular_strength = 0.5 * pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
 
   vec3 ambient_light  = light.ambient  *                     vec3(texture(material.diffuse, f_coord));
   vec3 diffuse_light  = light.diffuse  * diffuse_strength  * vec3(texture(material.diffuse, f_coord));

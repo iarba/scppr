@@ -239,11 +239,16 @@ scppr::scppr::scppr(std::string name)
   set_camera(M_PI / 2, { 0.0, 3.0, 0.0},  -M_PI / 2, 0.0, 0.0, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
 
   scppr_initialised = true;
+
+  default_texture = new texture_t("../assets/no_texture.png");
+  default_specular_texture = new texture_t("../assets/black.jpg");
   scppr_LOG("scppr initialised successfully");
 }
 
 scppr::scppr::~scppr()
 {
+  delete default_texture;
+  delete default_specular_texture;
   glDeleteVertexArrays(1, &rectangle_vao);
   glDeleteBuffers(1, &rectangle_vbo);
   glDeleteBuffers(1, &rectangle_ebo);
@@ -350,14 +355,25 @@ void scppr::scppr::draw()
     glUniform3fv(glGetUniformLocation(program, "light.position"), 1, &f_lp[0]);
     glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
     glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.specu;ar"), 1, &f_ls[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.specular"), 1, &f_ls[0]);
     glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
     glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
+    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
 
+    GLuint t_id = default_texture -> t_id;
+    if(rectangle -> texture)
+    {
+      t_id = rectangle -> texture -> t_id;
+    }
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, rectangle -> texture -> t_id);
+    glBindTexture(GL_TEXTURE_2D, t_id);
+    t_id = default_specular_texture -> t_id;
+    if(rectangle -> specular_texture)
+    {
+      t_id = rectangle -> specular_texture -> t_id;
+    }
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, rectangle -> specular_texture -> t_id);
+    glBindTexture(GL_TEXTURE_2D, t_id);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   }
@@ -391,14 +407,25 @@ void scppr::scppr::draw()
     glUniform3fv(glGetUniformLocation(program, "light.position"), 1, &f_lp[0]);
     glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
     glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
-    glUniform3fv(glGetUniformLocation(program, "light.specu;ar"), 1, &f_ls[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.specular"), 1, &f_ls[0]);
     glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
     glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
+    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
 
+    GLuint t_id = default_texture -> t_id;
+    if(cube -> texture)
+    {
+      t_id = cube -> texture -> t_id;
+    }
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, cube -> texture -> t_id);
+    glBindTexture(GL_TEXTURE_2D, t_id);
+    t_id = default_specular_texture -> t_id;
+    if(cube -> specular_texture)
+    {
+      t_id = cube -> specular_texture -> t_id;
+    }
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, cube -> specular_texture -> t_id);
+    glBindTexture(GL_TEXTURE_2D, t_id);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
   }

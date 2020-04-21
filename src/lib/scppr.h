@@ -126,6 +126,8 @@ namespace scppr
     std::set<cube_t *> cubes;
     std::set<light_t *> lights;
     std::map<listener_t, void *> listeners;
+    texture_t *default_texture;
+    texture_t *default_specular_texture;
   };
 }
 
