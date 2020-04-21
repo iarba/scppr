@@ -47,7 +47,8 @@ namespace scppr
     glm::dvec3 position = {0, 0, 0};
     glm::dvec3 rotation = {0, 0, 0};
     glm::dvec2 scale = {1, 1};
-    texture_t *texture;
+    texture_t *texture = NULL;
+    texture_t *specular_texture = NULL;
   };
 
   class cube_t
@@ -58,7 +59,8 @@ namespace scppr
     glm::dvec3 position = {0, 0, 0};
     glm::dvec3 rotation = {0, 0, 0};
     glm::dvec3 scale = {1, 1, 1};
-    texture_t *texture;
+    texture_t *texture = NULL;
+    texture_t *specular_texture = NULL;
   };
 
   class light_t
@@ -67,7 +69,9 @@ namespace scppr
     light_t();
     ~light_t();
     glm::dvec3 position = {0, 0, 0};
+    glm::dvec3 ambient = {0.2, 0.2, 0.2};
     glm::dvec3 color = {1, 1, 1};
+    glm::dvec3 specular = {1, 1, 1};
   };
 
   class scppr

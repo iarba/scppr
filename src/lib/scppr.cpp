@@ -84,14 +84,27 @@ void scppr_error_callback(int error, const char* description)
 scppr::texture_t::texture_t(std::string path)
 {
   scppr_ASSERT(scppr_initialised, "scppr is not initialised");
-  int width, height, nrChannels;
+  int width, height, channels;
   scppr_LOG("attempting to load texture");
-  unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+  unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+  GLenum format;
+  if(channels == 1)
+  {
+    format = GL_RED;
+  }
+  if(channels == 3)
+  {
+    format = GL_RGB;
+  }
+  if(channels == 4)
+  {
+    format = GL_RGBA;
+  }
   scppr_ASSERT(data, "failed to load texture [" + path + "]");
   scppr_LOG("creating texture buffer");
   glGenTextures(1, &t_id);
   glBindTexture(GL_TEXTURE_2D, t_id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -325,18 +338,27 @@ void scppr::scppr::draw()
     glm::mat4 f_v = view;
     glm::mat4 f_p = projection;
     glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
-    glm::vec3 f_lc = {1.0, 1.0, 1.0};
-    glm::vec3 f_lp = {0, -10, 5};
-    glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    light_t *light = *(lights.begin());
+    glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
+    glm::vec3 f_la = light -> ambient;
+    glm::vec3 f_lc = light -> color;
+    glm::vec3 f_ls = light -> specular;
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
     glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
-    glUniform3fv(glGetUniformLocation(program, "light"), 1, &f_lp[0]);
-    glUniform3fv(glGetUniformLocation(program, "light_color"), 1, &f_lc[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.position"), 1, &f_lp[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.specu;ar"), 1, &f_ls[0]);
+    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
+    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, rectangle -> texture -> t_id);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, rectangle -> specular_texture -> t_id);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   }
   glBindVertexArray(0);
@@ -357,18 +379,27 @@ void scppr::scppr::draw()
     glm::mat4 f_v = view;
     glm::mat4 f_p = projection;
     glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
-    glm::vec3 f_lc = {1.0, 1.0, 1.0};
-    glm::vec3 f_lp = {0, -10, 5};
-    glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    light_t *light = *(lights.begin());
+    glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
+    glm::vec3 f_la = light -> ambient;
+    glm::vec3 f_lc = light -> color;
+    glm::vec3 f_ls = light -> specular;
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
     glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
     glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
-    glUniform3fv(glGetUniformLocation(program, "light"), 1, &f_lp[0]);
-    glUniform3fv(glGetUniformLocation(program, "light_color"), 1, &f_lc[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.position"), 1, &f_lp[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.ambient"), 1, &f_la[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.diffuse"), 1, &f_lc[0]);
+    glUniform3fv(glGetUniformLocation(program, "light.specu;ar"), 1, &f_ls[0]);
+    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
+    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, cube -> texture -> t_id);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, cube -> specular_texture -> t_id);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
   }
   glBindVertexArray(0);

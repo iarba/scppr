@@ -91,15 +91,19 @@ void kb_callback(GLFWwindow *window, int key, int scancode, int action, int mods
 int main()
 {
   scppr::scppr renderer("Scene explorer");
-  scppr::texture_t *texture = new scppr::texture_t("../assets/wall.jpg");
+  scppr::texture_t *texture = new scppr::texture_t("../assets/container2.png");
+  scppr::texture_t *texture_s = new scppr::texture_t("../assets/container2_specular.png");
   scppr::rectangle_t *rectangle = new scppr::rectangle_t();
                       rectangle -> texture = texture;
+                      rectangle -> specular_texture = texture_s;
                       rectangle -> rotation.x = glm::radians(90.0);
   scppr::cube_t *cube1 = new scppr::cube_t();
                  cube1 -> texture = texture;
+                 cube1 -> specular_texture = texture_s;
                  cube1 -> position.x = -5;
   scppr::cube_t *cube2 = new scppr::cube_t();
                  cube2 -> texture = texture;
+                 cube2 -> specular_texture = texture_s;
                  cube2 -> position.x = 5;
   scppr::light_t *light1 = new scppr::light_t();
                   light1 -> position = {0, 10, -5};

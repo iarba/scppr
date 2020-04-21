@@ -7,13 +7,11 @@ layout (location = 2) in vec3 v_norm;
 out vec3 f_pos;
 out vec2 f_coord;
 out vec3 f_norm;
-out vec3 light_pos;
 
 uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
 uniform mat3 nmv;
-uniform vec3 light;
 
 void main()
 {
@@ -25,5 +23,4 @@ void main()
   f_pos = vec3(mv_pos);
   f_coord = v_texture_coord;
   f_norm = nmv * v_norm;
-  light_pos = vec3(v * vec4(light, 1));
 }
