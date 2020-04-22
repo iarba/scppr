@@ -3,6 +3,9 @@
 #include "lib/log.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include "lib/texture/stb_image.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 bool scppr_initialised = false;
 
@@ -54,6 +57,12 @@ scppr::texture_t::~texture_t()
 
 scppr::model_t::model_t(std::string path)
 {
+  scppr_LOG("importing model [" + path + "]");
+  Assimp::Importer _importer;
+  const aiScene *_scene = _importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_OptimizeMeshes);
+  scppr_LOG("checking import");
+  scppr_ASSERT(_scene, "assimp failed to load model: " + std::string(_importer.GetErrorString()));
+
   scppr_LOG("creating model buffers");
   glGenVertexArrays(1, &vao);
   glGenBuffers(1, &vbo);
@@ -80,6 +89,17 @@ scppr::model_t::model_t(std::string path)
 }
 
 scppr::model_t::~model_t()
+{
+  glDeleteVertexArrays(1, &vao);
+  glDeleteBuffers(1, &vbo);
+  glDeleteBuffers(1, &ebo);
+}
+
+scppr::object_t::object_t()
+{
+}
+
+scppr::object_t::~object_t()
 {
 }
 
@@ -255,6 +275,18 @@ void scppr::scppr::draw()
     }
     glUniform1i(glGetUniformLocation(program, "light_no"), count);
     glDrawElements(GL_TRIANGLES, obj -> model -> indices.size(), GL_UNSIGNED_INT, 0);
+
+    GLuint t_id = default_texture -> t_id;
+    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, t_id);
+
+    t_id = default_specular_texture -> t_id;
+    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, t_id);
+
+    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
   }
   glBindVertexArray(0);
 

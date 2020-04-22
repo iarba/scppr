@@ -91,28 +91,23 @@ void kb_callback(GLFWwindow *window, int key, int scancode, int action, int mods
 int main()
 {
   scppr::scppr renderer("Scene explorer");
-  scppr::texture_t *texture = new scppr::texture_t("../assets/container2.png");
-  scppr::texture_t *texture_s = new scppr::texture_t("../assets/container2_specular.png");
-  scppr::rectangle_t *rectangle = new scppr::rectangle_t();
-                      rectangle -> texture = texture;
-                      rectangle -> specular_texture = texture_s;
-                      rectangle -> rotation.x = glm::radians(90.0);
-  scppr::cube_t *cube1 = new scppr::cube_t();
-                 cube1 -> texture = texture;
-                 cube1 -> specular_texture = texture_s;
-                 cube1 -> position.x = -5;
-  scppr::cube_t *cube2 = new scppr::cube_t();
-                 cube2 -> texture = texture;
-                 cube2 -> specular_texture = texture_s;
-                 cube2 -> position.x = 5;
+  scppr::model_t* cube = new scppr::model_t("../assets/cube.obj");
+  scppr::object_t *cube1 = new scppr::object_t();
+                   cube1 -> model = cube;
+                   cube1 -> position.x = -5;
+  scppr::object_t *cube2 = new scppr::object_t();
+                   cube2 -> model = cube;
+                   cube2 -> position.x = 5;
+  scppr::object_t *cube3 = new scppr::object_t();
+                   cube3 -> model = cube;
   scppr::light_t *light1 = new scppr::light_t();
                   light1 -> position = {0, 10, -5};
                   light1 -> color = {0, 1, 0};
   scppr::light_t *light2 = new scppr::light_t();
                   light2 -> position = {0, -10, 5};
-  renderer.add_rectangle(rectangle);
-  renderer.add_cube(cube1);
-  renderer.add_cube(cube2);
+  renderer.add_object(cube1);
+  renderer.add_object(cube2);
+  renderer.add_object(cube3);
   renderer.add_light(light1);
   renderer.add_light(light2);
   renderer.add_listener(scppr::scroll_listener, (void *)&scroll_callback);
@@ -130,11 +125,11 @@ int main()
     camera.tick();
     renderer.draw();
   }
-  delete rectangle;
   delete cube1;
   delete cube2;
+  delete cube3;
   delete light1;
   delete light2;
-  delete texture;
+  delete cube;
   return 0;
 }

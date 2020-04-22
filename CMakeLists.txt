@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(scppr)
 
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+
 file(GLOB_RECURSE LIB_SOURCES "src/lib/*.cpp" "src/lib/*.c")
 file(GLOB_RECURSE EX01_SOURCES "src/example/01/*.cpp")
 file(GLOB_RECURSE EX02_SOURCES "src/example/02/*.cpp")
 
 add_subdirectory(dep/glm)
 add_subdirectory(dep/glfw)
+add_subdirectory(dep/assimp)
 
 include_directories(src)
 include_directories(include)
@@ -16,7 +20,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories()
 link_directories()
-link_libraries(glm glfw)
+link_libraries(glm glfw assimp)
 
 add_library(scppr STATIC ${LIB_SOURCES})
 
