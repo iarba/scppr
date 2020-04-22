@@ -23,7 +23,7 @@ scppr::texture_t::texture_t(std::string path)
 {
   scppr_ASSERT(scppr_initialised, "scppr is not initialised");
   int width, height, channels;
-  scppr_LOG("attempting to load texture");
+  scppr_LOG("attempting to load texture [" + path + "]");
   unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
   GLenum format;
   if(channels == 1)
@@ -55,13 +55,10 @@ scppr::texture_t::~texture_t()
   glDeleteBuffers(1, &t_id);
 }
 
-scppr::model_t::model_t(std::string path)
+scppr::mesh_t::mesh_t(std::vector<vertex_t> vertices, std::vector<GLuint> indices)
 {
-  scppr_LOG("importing model [" + path + "]");
-  Assimp::Importer _importer;
-  const aiScene *_scene = _importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_OptimizeMeshes);
-  scppr_LOG("checking import");
-  scppr_ASSERT(_scene, "assimp failed to load model: " + std::string(_importer.GetErrorString()));
+  this -> vertices = vertices;
+  this -> indices = indices;
 
   scppr_LOG("creating model buffers");
   glGenVertexArrays(1, &vao);
@@ -71,9 +68,7 @@ scppr::model_t::model_t(std::string path)
   scppr_LOG("populating buffer with model");
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t), &vertices[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW); 
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertex_t), &vertices[0], GL_STATIC_DRAW);
 
   scppr_LOG("defining buffer structure for model");
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);
@@ -83,16 +78,95 @@ scppr::model_t::model_t(std::string path)
   glEnableVertexAttribArray(1);
   glEnableVertexAttribArray(2);
 
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+
   scppr_LOG("unbinding buffer");
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 }
 
-scppr::model_t::~model_t()
+scppr::mesh_t::~mesh_t()
 {
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
   glDeleteBuffers(1, &ebo);
+}
+
+scppr::model_t::model_t(std::string path)
+{
+  std::string directory = path.substr(0, path.find_last_of('/')) + "/";
+  scppr_LOG("importing model [" + path + "]");
+  Assimp::Importer _importer;
+  const aiScene *_scene = _importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_OptimizeMeshes);
+  scppr_LOG("checking import");
+  scppr_ASSERT(_scene, "assimp failed to load model: " + std::string(_importer.GetErrorString()));
+
+  for(unsigned int i = 0; i < _scene -> mNumMaterials; i++)
+  {
+    if(_scene -> mMaterials[i] -> GetTextureCount(aiTextureType_DIFFUSE))
+    {
+      aiString _str;
+      _scene -> mMaterials[i] -> GetTexture(aiTextureType_DIFFUSE, 0, &_str);
+      std::string str = std::string(_str.C_Str());
+      textures.push_back(new texture_t(directory + str));
+    }
+    else
+    {
+      textures.push_back(new texture_t("../assets/no_texture.png"));
+    }
+  }
+
+  for(unsigned int i = 0; i < _scene -> mNumMeshes; i++)
+  {
+    scppr_LOG("creating mesh [" + std::to_string(i) + "]");
+    aiMesh *_mesh = _scene -> mMeshes[i];
+    std::vector<vertex_t> vertices;
+    std::vector<GLuint> indices;
+
+    for(unsigned int j = 0; j < _mesh -> mNumVertices; j++)
+    {
+      vertex_t vertex;
+
+      vertex.position.x = _mesh -> mVertices[j].x;
+      vertex.position.y = _mesh -> mVertices[j].y;
+      vertex.position.z = _mesh -> mVertices[j].z;
+
+      vertex.normal.x = _mesh -> mNormals[j].x;
+      vertex.normal.y = _mesh -> mNormals[j].y;
+      vertex.normal.z = _mesh -> mNormals[j].z;
+
+      if(_mesh -> mTextureCoords[0])
+      {
+        vertex.texture_coord.x = _mesh -> mTextureCoords[0][j].x;
+        vertex.texture_coord.y = _mesh -> mTextureCoords[0][j].y;
+      }
+      else
+      {
+        vertex.texture_coord = {0, 0};
+      }
+
+      vertices.push_back(vertex);
+scppr_LOG("vertex[" + std::to_string(vertex.position.x) + " " + std::to_string(vertex.position.y) + " " + std::to_string(vertex.position.z) + "]");
+    }
+
+    for(unsigned int i = 0; i < _mesh -> mNumFaces; i++)
+    {
+      aiFace _face = _mesh -> mFaces[i];
+      for(unsigned int j = 0; j < _face.mNumIndices; j++)
+      {
+        indices.push_back(_face.mIndices[j]);
+      }
+    }
+
+    mesh_t *mesh = new mesh_t(vertices, indices);
+    mesh -> texture = textures[_mesh -> mMaterialIndex];
+    meshes.push_back(mesh);
+  }
+}
+
+scppr::model_t::~model_t()
+{
 }
 
 scppr::object_t::object_t()
@@ -237,7 +311,6 @@ void scppr::scppr::draw()
     {
       continue;
     }
-    glBindVertexArray(obj -> model -> vao);
 
     glm::dmat4 model = glm::dmat4(1);
                model = glm::translate(model, glm::dvec3(obj -> position));
@@ -274,21 +347,27 @@ void scppr::scppr::draw()
       count++;
     }
     glUniform1i(glGetUniformLocation(program, "light_no"), count);
-    glDrawElements(GL_TRIANGLES, obj -> model -> indices.size(), GL_UNSIGNED_INT, 0);
+    for(mesh_t *mesh : obj -> model -> meshes)
+    {
+      glBindVertexArray(mesh -> vao);
 
-    GLuint t_id = default_texture -> t_id;
-    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, t_id);
+      GLuint t_id = mesh -> texture -> t_id;
+      glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, t_id);
 
-    t_id = default_specular_texture -> t_id;
-    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, t_id);
+      t_id = default_specular_texture -> t_id;
+      glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, t_id);
 
-    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
+      glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
+
+      glDrawElements(GL_TRIANGLES, mesh -> indices.size(), GL_UNSIGNED_INT, 0);
+
+      glBindVertexArray(0);
+    }
   }
-  glBindVertexArray(0);
 
   glfwSwapBuffers(window);
 }

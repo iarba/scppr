@@ -47,18 +47,28 @@ namespace scppr
     GLuint t_id;
   };
 
+  class mesh_t
+  {
+    public:
+    mesh_t(std::vector<vertex_t> vertices, std::vector<GLuint> indices);
+    ~mesh_t();
+    texture_t *texture;
+    // do not fiddle with this
+    std::vector<vertex_t> vertices;
+    std::vector<GLuint> indices;
+    GLuint vao;
+    GLuint vbo;
+    GLuint ebo;
+  };
+
   class model_t
   {
   public:
     model_t(std::string path);
     ~model_t();
-    std::vector<vertex_t> vertices;
-    std::vector<texture_t> textures;
     // do not fiddle with this
-    std::vector<GLuint> indices;
-    GLuint vao;
-    GLuint vbo;
-    GLuint ebo;
+    std::vector<mesh_t *> meshes;
+    std::vector<texture_t *> textures;
   };
 
   class object_t
