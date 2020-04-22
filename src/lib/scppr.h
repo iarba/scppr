@@ -7,6 +7,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <vector>
 
 namespace scppr
 {
@@ -30,6 +31,13 @@ namespace scppr
   static int default_width = 800;
   static int default_height = 800;
 
+  struct vertex_t
+  {
+    glm::vec3 position;
+    glm::vec2 texture_coord;
+    glm::vec3 normal;
+  };
+
   class texture_t
   {
   public:
@@ -39,32 +47,31 @@ namespace scppr
     GLuint t_id;
   };
 
-  class rectangle_t
+  class model_t
   {
   public:
-    rectangle_t();
-    ~rectangle_t();
-    glm::dvec3 position = {0, 0, 0};
-    glm::dvec3 rotation = {0, 0, 0};
-    glm::dvec2 scale = {1, 1};
-    texture_t *texture = NULL;
-    texture_t *specular_texture = NULL;
-    bool hidden = false;
-    bool active = true;
+    model_t(std::string path);
+    ~model_t();
+    std::vector<vertex_t> vertices;
+    std::vector<texture_t> textures;
+    // do not fiddle with this
+    std::vector<GLuint> indices;
+    GLuint vao;
+    GLuint vbo;
+    GLuint ebo;
   };
 
-  class cube_t
+  class object_t
   {
   public:
-    cube_t();
-    ~cube_t();
+    object_t();
+    ~object_t();
     glm::dvec3 position = {0, 0, 0};
     glm::dvec3 rotation = {0, 0, 0};
     glm::dvec3 scale = {1, 1, 1};
-    texture_t *texture = NULL;
-    texture_t *specular_texture = NULL;
     bool hidden = false;
     bool active = true;
+    model_t *model = NULL;
   };
 
   class light_t
@@ -74,7 +81,7 @@ namespace scppr
     ~light_t();
     glm::dvec3 position = {0, 0, 0};
     glm::dvec3 ambient = {0.2, 0.2, 0.2};
-    glm::dvec3 color = {1, 1, 1};
+    glm::dvec3 color = {1, 1, 1}; // diffuse
     glm::dvec3 specular = {1, 1, 1};
     double strength = 1000000;
     bool hidden = true;
@@ -86,10 +93,8 @@ namespace scppr
   public:
     scppr(std::string name);
     ~scppr();
-    void add_rectangle(rectangle_t *rectangle);
-    void remove_rectangle(rectangle_t *rectangle);
-    void add_cube(cube_t *cube);
-    void remove_cube(cube_t *cube);
+    void add_object(object_t *obj);
+    void remove_object(object_t *obj);
     void add_light(light_t *light);
     void remove_light(light_t *light);
     void add_listener(listener_t cbt, void *function);
@@ -123,14 +128,7 @@ namespace scppr
     glm::dvec3 camera_front;
     glm::dvec3 camera_right;
     glm::dvec3 camera_up;
-    GLuint rectangle_vao;
-    GLuint rectangle_vbo;
-    GLuint rectangle_ebo;
-    GLuint cube_vao;
-    GLuint cube_vbo;
-    GLuint light_vao;
-    std::set<rectangle_t *> rectangles;
-    std::set<cube_t *> cubes;
+    std::set<object_t *> objects;
     std::set<light_t *> lights;
     std::map<listener_t, void *> listeners;
     texture_t *default_texture;

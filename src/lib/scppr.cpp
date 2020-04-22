@@ -4,82 +4,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "lib/texture/stb_image.h"
 
+bool scppr_initialised = false;
+
 GLint glGetUniformLocation_str(GLint program, std::string location)
 {
   return glGetUniformLocation(program, location.c_str());
 }
-
-bool scppr_initialised = false;
-
-/*        x
- *
- *        A
- *        |
- *     1     0
- *      *---*
- *      |\  |
- *-z <- | 0 | -> z
- *      |  \|
- *      *---*
- *     2     3
- *        |
- *        V
- *       -x
- *
- */
-static const float square_vertices[] =
-{
-   0.5f,  0.0f,  0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // 0
-   0.5f,  0.0f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 1
-  -0.5f,  0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, // 2
-  -0.5f,  0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f  // 3
-};
-
-static const unsigned int square_indices[] =
-{
-  0, 1, 3,
-  1, 2, 3
-};
-
-static const float cube_vertices[] =
-{
-  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-   0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-  -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-  -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-  -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-   0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-   0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-   0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-   0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-  -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-   0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-   0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-  -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
-};
 
 void scppr_error_callback(int error, const char* description)
 {
@@ -122,19 +52,34 @@ scppr::texture_t::~texture_t()
   glDeleteBuffers(1, &t_id);
 }
 
-scppr::rectangle_t::rectangle_t()
+scppr::model_t::model_t(std::string path)
 {
+  scppr_LOG("creating model buffers");
+  glGenVertexArrays(1, &vao);
+  glGenBuffers(1, &vbo);
+  glGenBuffers(1, &ebo);
+
+  scppr_LOG("populating buffer with model");
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_t), &vertices[0], GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW); 
+
+  scppr_LOG("defining buffer structure for model");
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(3 * sizeof(float)));
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(5 * sizeof(float)));
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
+
+  scppr_LOG("unbinding buffer");
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 }
 
-scppr::rectangle_t::~rectangle_t()
-{
-}
-
-scppr::cube_t::cube_t()
-{
-}
-
-scppr::cube_t::~cube_t()
+scppr::model_t::~model_t()
 {
 }
 
@@ -176,75 +121,15 @@ scppr::scppr::scppr(std::string name)
   scppr_LOG("configuring gl context");
   glfwSwapInterval(1);
 
-  scppr_LOG("creating rectangle buffers");
-  glGenVertexArrays(1, &rectangle_vao);
-  glGenBuffers(1, &rectangle_vbo);
-  glGenBuffers(1, &rectangle_ebo);
-
-  scppr_LOG("populating buffer with rectangle");
-  glBindVertexArray(rectangle_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, rectangle_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rectangle_ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW); 
-
-  scppr_LOG("defining buffer structure for rectangle");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-
-  scppr_LOG("unbinding buffer");
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
-  scppr_LOG("creating cube buffers");
-  glGenVertexArrays(1, &cube_vao);
-  glGenBuffers(1, &cube_vbo);
-
-  scppr_LOG("populating buffer with cube")
-  glBindVertexArray(cube_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
-
-  scppr_LOG("defining buffer structure for cube");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-
-  scppr_LOG("unbinding buffer");
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
-  scppr_LOG("creating light buffers");
-  glGenVertexArrays(1, &light_vao);
-
-  scppr_LOG("populating buffer with light")
-  glBindVertexArray(light_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
-
-  scppr_LOG("defining buffer structure for light");
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-
-  scppr_LOG("unbinding buffer");
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
   scppr_LOG("creating gl render program");
   simple_light_program = load_program("simple_light");
-  light_program = load_program("light");
 
   scppr_LOG("initialising camera");
   set_camera(M_PI / 2, { 0.0, 3.0, 0.0},  -M_PI / 2, 0.0, 0.0, SCPPR_CAMERA_FOV | SCPPR_CAMERA_EYE | SCPPR_CAMERA_PITCH | SCPPR_CAMERA_ROLL | SCPPR_CAMERA_YAW);
 
   scppr_initialised = true;
 
+  scppr_LOG("initialising environment");
   default_texture = new texture_t("../assets/no_texture.png");
   default_specular_texture = new texture_t("../assets/black.jpg");
   default_ambient = new light_t();
@@ -261,35 +146,19 @@ scppr::scppr::~scppr()
   delete default_texture;
   delete default_specular_texture;
   delete default_ambient;
-  glDeleteVertexArrays(1, &rectangle_vao);
-  glDeleteBuffers(1, &rectangle_vbo);
-  glDeleteBuffers(1, &rectangle_ebo);
-  glDeleteVertexArrays(1, &cube_vao);
-  glDeleteBuffers(1, &cube_vbo);
-  glDeleteVertexArrays(1, &light_vao);
   scppr_initialised = false;
   glfwDestroyWindow(window);
   glfwTerminate();
 }
 
-void scppr::scppr::add_rectangle(rectangle_t *rectangle)
+void scppr::scppr::add_object(object_t *obj)
 {
-  rectangles.insert(rectangle);
+  objects.insert(obj);
 }
 
-void scppr::scppr::remove_rectangle(rectangle_t *rectangle)
+void scppr::scppr::remove_object(object_t *obj)
 {
-  rectangles.erase(rectangle);
-}
-
-void scppr::scppr::add_cube(cube_t *cube)
-{
-  cubes.insert(cube);
-}
-
-void scppr::scppr::remove_cube(cube_t *cube)
-{
-  cubes.erase(cube);
+  objects.erase(obj);
 }
 
 void scppr::scppr::add_light(light_t *light)
@@ -341,19 +210,21 @@ void scppr::scppr::draw()
 
   glUseProgram(simple_light_program);
   program = simple_light_program;
-  glBindVertexArray(rectangle_vao);
-  for(auto rectangle : rectangles)
+
+  for(auto obj : objects)
   {
-    if(rectangle -> hidden)
+    if(obj -> hidden)
     {
       continue;
     }
+    glBindVertexArray(obj -> model -> vao);
+
     glm::dmat4 model = glm::dmat4(1);
-               model = glm::translate(model, glm::dvec3(rectangle -> position));
-               model = glm::rotate(model, rectangle -> rotation.x, {1, 0, 0});
-               model = glm::rotate(model, rectangle -> rotation.y, {0, 1, 0});
-               model = glm::rotate(model, rectangle -> rotation.z, {0, 0, 1});
-               model = glm::scale(model, glm::dvec3(rectangle -> scale, 1));
+               model = glm::translate(model, glm::dvec3(obj -> position));
+               model = glm::rotate(model, obj -> rotation.x, {1, 0, 0});
+               model = glm::rotate(model, obj -> rotation.y, {0, 1, 0});
+               model = glm::rotate(model, obj -> rotation.z, {0, 0, 1});
+               model = glm::scale(model, obj -> scale);
 
     glm::mat4 f_m = model;
     glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
@@ -383,113 +254,7 @@ void scppr::scppr::draw()
       count++;
     }
     glUniform1i(glGetUniformLocation(program, "light_no"), count);
-
-    GLuint t_id = default_texture -> t_id;
-    if(rectangle -> texture)
-    {
-      t_id = rectangle -> texture -> t_id;
-    }
-    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, t_id);
-    t_id = default_specular_texture -> t_id;
-    if(rectangle -> specular_texture)
-    {
-      t_id = rectangle -> specular_texture -> t_id;
-    }
-    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, t_id);
-    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
-
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-  }
-  glBindVertexArray(0);
-
-  glUseProgram(simple_light_program);
-  program = simple_light_program;
-  glBindVertexArray(cube_vao);
-  for(auto cube : cubes)
-  {
-    if(cube -> hidden)
-    {
-      continue;
-    }
-    glm::dmat4 model = glm::dmat4(1);
-               model = glm::translate(model, glm::dvec3(cube -> position));
-               model = glm::rotate(model, cube -> rotation.x, {1, 0, 0});
-               model = glm::rotate(model, cube -> rotation.y, {0, 1, 0});
-               model = glm::rotate(model, cube -> rotation.z, {0, 0, 1});
-               model = glm::scale(model, cube -> scale);
-
-    glm::mat4 f_m = model;
-    glUniformMatrix4fv(glGetUniformLocation(program, "m"), 1, GL_FALSE, &f_m[0][0]);
-    glm::mat4 f_v = view;
-    glUniformMatrix4fv(glGetUniformLocation(program, "v"), 1, GL_FALSE, &f_v[0][0]);
-    glm::mat4 f_p = projection;
-    glUniformMatrix4fv(glGetUniformLocation(program, "p"), 1, GL_FALSE, &f_p[0][0]);
-    glm::mat3 f_nmv = glm::mat3(glm::transpose(glm::inverse(view * model)));
-    glUniformMatrix3fv(glGetUniformLocation(program, "nmv"), 1, GL_FALSE, &f_nmv[0][0]);
-    int count = 0;
-    for(light_t *light : lights)
-    {
-      if(!light -> active)
-      {
-        continue;
-      }
-      glm::vec3 f_lp = view * glm::vec4(light -> position, 1);
-      std::string header = "lights[" + std::to_string(count) + "]";
-      glUniform3fv(glGetUniformLocation_str(program, header + ".position"), 1, &f_lp[0]);
-      glm::vec3 f_la = light -> ambient;
-      glUniform3fv(glGetUniformLocation_str(program, header + ".ambient"), 1, &f_la[0]);
-      glm::vec3 f_lc = light -> color;
-      glUniform3fv(glGetUniformLocation_str(program, header + ".diffuse"), 1, &f_lc[0]);
-      glm::vec3 f_ls = light -> specular;
-      glUniform3fv(glGetUniformLocation_str(program, header + ".specular"), 1, &f_ls[0]);
-      glUniform1f(glGetUniformLocation_str(program, header + ".strength"), light -> strength);
-      count++;
-    }
-    glUniform1i(glGetUniformLocation(program, "light_no"), count);
-
-    GLuint t_id = default_texture -> t_id;
-    if(cube -> texture)
-    {
-      t_id = cube -> texture -> t_id;
-    }
-    glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, t_id);
-    t_id = default_specular_texture -> t_id;
-    if(cube -> specular_texture)
-    {
-      t_id = cube -> specular_texture -> t_id;
-    }
-    glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, t_id);
-    glUniform1f(glGetUniformLocation(program, "material.shininess"), 32);
-
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-  }
-  glBindVertexArray(0);
-
-  glUseProgram(light_program);
-  program = light_program;
-  glBindVertexArray(light_vao);
-  for(auto light : lights)
-  {
-    if(light -> hidden)
-    {
-      continue;
-    }
-    glm::dmat4 model = glm::dmat4(1);
-              model = glm::translate(model, glm::dvec3(light -> position));
-    glm::mat4 mvp = vp * model;
-
-    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, &mvp[0][0]);
-    glUniform3f(glGetUniformLocation(program, "object_color"), light -> color.x, light -> color.y, light -> color.z);
-
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, obj -> model -> indices.size(), GL_UNSIGNED_INT, 0);
   }
   glBindVertexArray(0);
 
