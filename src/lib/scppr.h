@@ -47,12 +47,19 @@ namespace scppr
     GLuint t_id;
   };
 
+  class material_t
+  {
+  public:
+    texture_t *diffuse = NULL;
+    texture_t *specular = NULL;
+  };
+
   class mesh_t
   {
     public:
     mesh_t(std::vector<vertex_t> vertices, std::vector<GLuint> indices);
     ~mesh_t();
-    texture_t *texture;
+    material_t material;
     // do not fiddle with this
     std::vector<vertex_t> vertices;
     std::vector<GLuint> indices;
@@ -68,7 +75,7 @@ namespace scppr
     ~model_t();
     // do not fiddle with this
     std::vector<mesh_t *> meshes;
-    std::vector<texture_t *> textures;
+    std::vector<material_t> materials;
   };
 
   class object_t

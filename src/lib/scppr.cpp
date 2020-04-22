@@ -104,17 +104,30 @@ scppr::model_t::model_t(std::string path)
 
   for(unsigned int i = 0; i < _scene -> mNumMaterials; i++)
   {
+    material_t material;
     if(_scene -> mMaterials[i] -> GetTextureCount(aiTextureType_DIFFUSE))
     {
       aiString _str;
       _scene -> mMaterials[i] -> GetTexture(aiTextureType_DIFFUSE, 0, &_str);
       std::string str = std::string(_str.C_Str());
-      textures.push_back(new texture_t(directory + str));
+      material.diffuse = new texture_t(directory + str);
     }
     else
     {
-      textures.push_back(new texture_t("../assets/no_texture.png"));
+      material.diffuse = new texture_t("../assets/no_texture.png");
     }
+    if(_scene -> mMaterials[i] -> GetTextureCount(aiTextureType_SPECULAR))
+    {
+      aiString _str;
+      _scene -> mMaterials[i] -> GetTexture(aiTextureType_SPECULAR, 0, &_str);
+      std::string str = std::string(_str.C_Str());
+      material.specular = new texture_t(directory + str);
+    }
+    else
+    {
+      material.specular = new texture_t("../assets/black.jpg");
+    }
+    materials.push_back(material);
   }
 
   for(unsigned int i = 0; i < _scene -> mNumMeshes; i++)
@@ -147,7 +160,6 @@ scppr::model_t::model_t(std::string path)
       }
 
       vertices.push_back(vertex);
-scppr_LOG("vertex[" + std::to_string(vertex.position.x) + " " + std::to_string(vertex.position.y) + " " + std::to_string(vertex.position.z) + "]");
     }
 
     for(unsigned int i = 0; i < _mesh -> mNumFaces; i++)
@@ -160,13 +172,22 @@ scppr_LOG("vertex[" + std::to_string(vertex.position.x) + " " + std::to_string(v
     }
 
     mesh_t *mesh = new mesh_t(vertices, indices);
-    mesh -> texture = textures[_mesh -> mMaterialIndex];
+    mesh -> material = materials[_mesh -> mMaterialIndex];
     meshes.push_back(mesh);
   }
 }
 
 scppr::model_t::~model_t()
 {
+  for(auto mesh : meshes)
+  {
+    delete mesh;
+  }
+  for(auto material : materials)
+  {
+    delete material.diffuse;
+    delete material.specular;
+  }
 }
 
 scppr::object_t::object_t()
@@ -351,12 +372,12 @@ void scppr::scppr::draw()
     {
       glBindVertexArray(mesh -> vao);
 
-      GLuint t_id = mesh -> texture -> t_id;
+      GLuint t_id = mesh -> material.diffuse -> t_id;
       glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, t_id);
 
-      t_id = default_specular_texture -> t_id;
+      t_id = mesh -> material.specular -> t_id;
       glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
       glActiveTexture(GL_TEXTURE1);
       glBindTexture(GL_TEXTURE_2D, t_id);
