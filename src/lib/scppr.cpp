@@ -39,10 +39,10 @@ scppr::texture_t::texture_t(std::string path)
     format = GL_RGBA;
   }
   scppr_ASSERT(data, "failed to load texture [" + path + "]");
-  scppr_LOG("creating texture buffer");
+  scppr_LOG("creating texture buffer with " + std::to_string(channels) + "channels");
   glGenTextures(1, &t_id);
   glBindTexture(GL_TEXTURE_2D, t_id);
-  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -235,6 +235,9 @@ scppr::scppr::scppr(std::string name)
 
   scppr_LOG("configuring gl context");
   glfwSwapInterval(1);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE);
 
   scppr_LOG("creating gl render program");
   simple_light_program = load_program("simple_light");

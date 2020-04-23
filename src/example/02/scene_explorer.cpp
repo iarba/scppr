@@ -115,9 +115,16 @@ int main()
                   light1 -> color = {0, 1, 0};
   scppr::light_t *light2 = new scppr::light_t();
                   light2 -> position = {0, -10, 5};
+  scppr::material_t mat3;
+  mat3.diffuse = new scppr::texture_t("../assets/thonk.png");
+  scppr::object_t *cube4 = new scppr::object_t();
+                   cube4 -> model = cube;
+                   cube4 -> position.y = 5;
+                   cube4 -> material_overwrite[0] = mat3;
   renderer.add_object(cube1);
   renderer.add_object(cube2);
   renderer.add_object(cube3);
+  renderer.add_object(cube4);
   renderer.add_light(light1);
   renderer.add_light(light2);
   renderer.add_listener(scppr::scroll_listener, (void *)&scroll_callback);
@@ -142,6 +149,7 @@ int main()
   delete light2;
   delete mat.diffuse;
   delete mat.specular;
+  delete mat3.diffuse;
   delete cube;
   return 0;
 }
