@@ -89,6 +89,7 @@ namespace scppr
     bool hidden = false;
     bool active = true;
     model_t *model = NULL;
+    std::map<int, material_t> material_overwrite;
   };
 
   class light_t
@@ -148,8 +149,7 @@ namespace scppr
     std::set<object_t *> objects;
     std::set<light_t *> lights;
     std::map<listener_t, void *> listeners;
-    texture_t *default_texture;
-    texture_t *default_specular_texture;
+    material_t default_material;
     light_t *default_ambient;
   };
 }

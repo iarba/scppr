@@ -92,14 +92,24 @@ int main()
 {
   scppr::scppr renderer("Scene explorer");
   scppr::model_t* cube = new scppr::model_t("../assets/cube.obj");
+  scppr::material_t mat;
+  mat.diffuse = new scppr::texture_t("../assets/container2.png");
+  mat.specular = new scppr::texture_t("../assets/container2_specular.png");
   scppr::object_t *cube1 = new scppr::object_t();
                    cube1 -> model = cube;
-                   cube1 -> position.x = -5;
+                   cube1 -> material_overwrite[0] = mat;
+  scppr::material_t mat2 = mat;
+  mat2.diffuse = NULL;
   scppr::object_t *cube2 = new scppr::object_t();
                    cube2 -> model = cube;
-                   cube2 -> position.x = 5;
+                   cube2 -> position.x = -5;
+                   cube2 -> material_overwrite[0] = mat2;
+  mat2 = mat;
+  mat2.specular = NULL;
   scppr::object_t *cube3 = new scppr::object_t();
                    cube3 -> model = cube;
+                   cube3 -> position.x = 5;
+                   cube3 -> material_overwrite[0] = mat2;
   scppr::light_t *light1 = new scppr::light_t();
                   light1 -> position = {0, 10, -5};
                   light1 -> color = {0, 1, 0};
@@ -130,6 +140,8 @@ int main()
   delete cube3;
   delete light1;
   delete light2;
+  delete mat.diffuse;
+  delete mat.specular;
   delete cube;
   return 0;
 }

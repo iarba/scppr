@@ -245,8 +245,8 @@ scppr::scppr::scppr(std::string name)
   scppr_initialised = true;
 
   scppr_LOG("initialising environment");
-  default_texture = new texture_t("../assets/no_texture.png");
-  default_specular_texture = new texture_t("../assets/black.jpg");
+  default_material.diffuse = new texture_t("../assets/no_texture.png");
+  default_material.specular = new texture_t("../assets/black.jpg");
   default_ambient = new light_t();
   default_ambient -> ambient = {0.15, 0.15, 0.15};
   default_ambient -> color = {0, 0, 0};
@@ -258,8 +258,8 @@ scppr::scppr::scppr(std::string name)
 
 scppr::scppr::~scppr()
 {
-  delete default_texture;
-  delete default_specular_texture;
+  delete default_material.diffuse;
+  delete default_material.specular;
   delete default_ambient;
   scppr_initialised = false;
   glfwDestroyWindow(window);
@@ -368,16 +368,47 @@ void scppr::scppr::draw()
       count++;
     }
     glUniform1i(glGetUniformLocation(program, "light_no"), count);
-    for(mesh_t *mesh : obj -> model -> meshes)
+    for(int i = 0; i < obj -> model -> meshes.size(); i++)
     {
+      mesh_t *mesh = obj -> model -> meshes[i];
       glBindVertexArray(mesh -> vao);
+      auto it = obj -> material_overwrite.find(i);
+      material_t overwrite;
+      bool overwritten = false;
+      if(it != obj -> material_overwrite.end())
+      {
+        overwrite = it -> second;
+        overwritten = true;
+      }
 
       GLuint t_id = mesh -> material.diffuse -> t_id;
+      if(overwritten)
+      {
+        if(overwrite.diffuse)
+        {
+          t_id = overwrite.diffuse -> t_id;
+        }
+        else
+        {
+          t_id = default_material.diffuse -> t_id;
+        }
+      }
       glUniform1i(glGetUniformLocation(program, "material.diffuse"), 0);
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, t_id);
 
       t_id = mesh -> material.specular -> t_id;
+      if(overwritten)
+      {
+        if(overwrite.specular)
+        {
+          t_id = overwrite.specular -> t_id;
+        }
+        else
+        {
+          t_id = default_material.specular -> t_id;
+        }
+      }
       glUniform1i(glGetUniformLocation(program, "material.specular"), 1);
       glActiveTexture(GL_TEXTURE1);
       glBindTexture(GL_TEXTURE_2D, t_id);
