@@ -29,7 +29,7 @@ uniform material_t material;
 uniform int light_no;
 uniform light_t lights[MAX_LIGHTS];
 
-vec3 point_light(light_t light, vec3 norm, vec3 view_dir)
+vec4 point_light(light_t light, vec3 norm, vec3 view_dir)
 {
   vec3 light_dir = normalize(light.position - f_pos);
   vec3 reflect_dir = reflect(-light_dir, norm);
@@ -38,21 +38,27 @@ vec3 point_light(light_t light, vec3 norm, vec3 view_dir)
   float diffuse_strength = max(dot(norm, light_dir), 0.0);
   float specular_strength = 0.5 * pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
 
-  vec3 ambient_light  = attenuation * light.ambient  *                     vec3(texture(material.diffuse, f_coord));
-  vec3 diffuse_light  = attenuation * light.diffuse  * diffuse_strength  * vec3(texture(material.diffuse, f_coord));
-  vec3 specular_light = attenuation * light.specular * specular_strength * vec3(texture(material.specular, f_coord));
+  vec4 ambient_light  = attenuation * vec4(light.ambient, 1)  *                     texture(material.diffuse, f_coord);
+  vec4 diffuse_light  = attenuation * vec4(light.diffuse, 1)  * diffuse_strength  * texture(material.diffuse, f_coord);
+  vec4 specular_light = attenuation * vec4(light.specular, 1) * specular_strength * texture(material.specular, f_coord);
 
   return ambient_light + diffuse_light + specular_light;
 }
 
 void main()
 {
+  if(texture(material.diffuse, f_coord).a < 0.9)
+  {
+    discard;
+  }
   vec3 norm = normalize(f_norm);
   vec3 view_dir = normalize(-f_pos);
-  vec3 acc = vec3(0, 0, 0);
+  vec4 acc = vec4(0, 0, 0, 0);
   for(int i = 0; i < light_no; i++)
   {
+    acc.a *= light_no;
     acc += point_light(lights[i], norm, view_dir);
+    acc.a /= light_no;
   }
-  color = vec4(acc, 1);
+  color = acc;
 }
