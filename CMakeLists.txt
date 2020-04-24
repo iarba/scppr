@@ -22,6 +22,8 @@ include_directories()
 link_directories()
 link_libraries(glm glfw assimp)
 
+target_include_directories(glm INTERFACE scppr/)
+
 add_library(scppr STATIC ${LIB_SOURCES})
 
 add_executable(scppr_example01 ${EX01_SOURCES})
