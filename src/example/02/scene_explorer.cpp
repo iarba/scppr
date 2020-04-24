@@ -7,13 +7,14 @@ double last_exists = false;
 
 camera_t camera;
 
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+void scroll_callback(void *p, double xoffset, double yoffset)
 {
   camera.process_scroll(yoffset);
 }
 
-void mouse_callback(GLFWwindow *window, double xpos, double ypos)
+void mouse_callback(void *p, double xpos, double ypos)
 {
+  GLFWwindow *window = (GLFWwindow *)p;
   if(glfwGetInputMode(window, GLFW_CURSOR) != GLFW_CURSOR_DISABLED)
   {
     return;
@@ -30,8 +31,9 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
   last_y = ypos;
 }
 
-void click_callback(GLFWwindow *window, int button, int state, int mods)
+void click_callback(void *p, int button, int state, int mods)
 {
+  GLFWwindow *window = (GLFWwindow *)p;
   if(button == GLFW_MOUSE_BUTTON_2)
   {
     if(state == GLFW_PRESS)
@@ -46,7 +48,7 @@ void click_callback(GLFWwindow *window, int button, int state, int mods)
   }
 }
 
-void kb_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+void kb_callback(void *p, int key, int scancode, int action, int mods)
 {
   if(action == GLFW_PRESS)
   {
@@ -129,10 +131,10 @@ int main(int argc, char **argv)
   renderer.add_object(cube4);
   renderer.add_light(light1);
   renderer.add_light(light2);
-  renderer.add_listener(scppr::scroll_listener, (void *)&scroll_callback);
-  renderer.add_listener(scppr::mouse_listener, (void *)&mouse_callback);
-  renderer.add_listener(scppr::click_listener, (void *)&click_callback);
-  renderer.add_listener(scppr::keyboard_listener, (void *)&kb_callback);
+  renderer.add_listener(scppr::scroll_listener, (void *)&scroll_callback, (void *)renderer.window);
+  renderer.add_listener(scppr::mouse_listener, (void *)&mouse_callback, (void *)renderer.window);
+  renderer.add_listener(scppr::click_listener, (void *)&click_callback, (void *)renderer.window);
+  renderer.add_listener(scppr::keyboard_listener, (void *)&kb_callback, (void *)renderer.window);
   while(renderer.is_open())
   {
     renderer.poll();

@@ -117,6 +117,7 @@ namespace scppr
     void add_light(light_t *light);
     void remove_light(light_t *light);
     void add_listener(listener_t cbt, void *function);
+    void add_listener(listener_t cbt, void *function, void *data_point);
     void remove_listener(listener_t cbt);
     bool is_open();
     void poll();
@@ -149,7 +150,7 @@ namespace scppr
     glm::dvec3 camera_up;
     std::set<object_t *> objects;
     std::set<light_t *> lights;
-    std::map<listener_t, void *> listeners;
+    std::map<listener_t, std::pair<void *, void *>> listeners;
     material_t default_material;
     light_t *default_ambient;
   };

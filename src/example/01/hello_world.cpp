@@ -3,7 +3,7 @@
 double fov = 45;
 bool dirty_camera = true;
 
-void process_mouse_scroll(GLFWwindow *_w, double _xoffset, double yoffset)
+void process_mouse_scroll(void *_p, double _xoffset, double yoffset)
 {
   fov -= yoffset;
   if(fov < 3.0)

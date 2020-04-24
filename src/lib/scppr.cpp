@@ -297,7 +297,12 @@ void scppr::scppr::remove_light(light_t *light)
 
 void scppr::scppr::add_listener(listener_t cbt, void *function)
 {
-  listeners[cbt] = function;
+  add_listener(cbt, function, NULL);
+}
+
+void scppr::scppr::add_listener(listener_t cbt, void *function, void *data_point)
+{
+  listeners[cbt] = std::pair<void *, void *>(function, data_point);
 }
 
 void scppr::scppr::remove_listener(listener_t cbt)
@@ -503,8 +508,8 @@ void scppr::scppr::mouse_callback(GLFWwindow* window, double xpos, double ypos)
   auto it = listeners.find(mouse_listener);
   if(it != listeners.end())
   {
-    void (*cb)(GLFWwindow *, double, double) = (void (*)(GLFWwindow *, double, double))it -> second;
-    (*cb)(window, xpos, ypos);
+    void (*cb)(void *, double, double) = (void (*)(void *, double, double))it -> second.first;
+    (*cb)(it -> second.second, xpos, ypos);
   }
 }
 
@@ -513,8 +518,8 @@ void scppr::scppr::scroll_callback(GLFWwindow* window, double xoffset, double yo
   auto it = listeners.find(scroll_listener);
   if(it != listeners.end())
   {
-    void (*cb)(GLFWwindow *, double, double) = (void (*)(GLFWwindow *, double, double))it -> second;
-    (*cb)(window, xoffset, yoffset);
+    void (*cb)(void *, double, double) = (void (*)(void *, double, double))it -> second.first;
+    (*cb)(it -> second.second, xoffset, yoffset);
   }
 }
 
@@ -523,8 +528,8 @@ void scppr::scppr::click_callback(GLFWwindow* window, int button, int state, int
   auto it = listeners.find(click_listener);
   if(it != listeners.end())
   {
-    void (*cb)(GLFWwindow *, int, int, int) = (void (*)(GLFWwindow *, int, int, int))it -> second;
-    (*cb)(window, button, state, mods);
+    void (*cb)(void *, int, int, int) = (void (*)(void *, int, int, int))it -> second.first;
+    (*cb)(it -> second.second, button, state, mods);
   }
 }
 
@@ -533,7 +538,7 @@ void scppr::scppr::keyboard_callback(GLFWwindow* window, int key, int scancode, 
   auto it = listeners.find(keyboard_listener);
   if(it != listeners.end())
   {
-    void (*cb)(GLFWwindow *, int, int, int, int) = (void (*)(GLFWwindow *, int, int, int, int))it -> second;
-    (*cb)(window, key, scancode, action, mods);
+    void (*cb)(void *, int, int, int, int) = (void (*)(void *, int, int, int, int))it -> second.first;
+    (*cb)(it -> second.second, key, scancode, action, mods);
   }
 }
