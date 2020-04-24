@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 
 bool scppr_initialised = false;
+std::string scppr::_assets_path;
 
 GLint glGetUniformLocation_str(GLint program, std::string location)
 {
@@ -57,6 +58,7 @@ scppr::texture_t::~texture_t()
 
 scppr::mesh_t::mesh_t(std::vector<vertex_t> vertices, std::vector<GLuint> indices)
 {
+  scppr_ASSERT(scppr_initialised, "scppr is not initialised");
   this -> vertices = vertices;
   this -> indices = indices;
 
@@ -95,6 +97,7 @@ scppr::mesh_t::~mesh_t()
 
 scppr::model_t::model_t(std::string path)
 {
+  scppr_ASSERT(scppr_initialised, "scppr is not initialised");
   std::string directory = path.substr(0, path.find_last_of('/')) + "/";
   scppr_LOG("importing model [" + path + "]");
   Assimp::Importer _importer;
@@ -114,7 +117,7 @@ scppr::model_t::model_t(std::string path)
     }
     else
     {
-      material.diffuse = new texture_t("../assets/no_texture.png");
+      material.diffuse = new texture_t(_assets_path + "no_texture.png");
     }
     if(_scene -> mMaterials[i] -> GetTextureCount(aiTextureType_SPECULAR))
     {
@@ -125,7 +128,7 @@ scppr::model_t::model_t(std::string path)
     }
     else
     {
-      material.specular = new texture_t("../assets/black.jpg");
+      material.specular = new texture_t(_assets_path + "black.jpg");
     }
     materials.push_back(material);
   }
@@ -192,6 +195,7 @@ scppr::model_t::~model_t()
 
 scppr::object_t::object_t()
 {
+  scppr_ASSERT(scppr_initialised, "scppr is not initialised");
 }
 
 scppr::object_t::~object_t()
@@ -200,15 +204,17 @@ scppr::object_t::~object_t()
 
 scppr::light_t::light_t()
 {
+  scppr_ASSERT(scppr_initialised, "scppr is not initialised");
 }
 
 scppr::light_t::~light_t()
 {
 }
 
-scppr::scppr::scppr(std::string name)
+scppr::scppr::scppr(std::string name, std::string assets_path)
 {
-  scppr_ASSERT(!scppr_initialised, "scppr is not initialised");
+  _assets_path = assets_path;
+  scppr_ASSERT(!scppr_initialised, "scppr is initialised already");
   scppr_LOG("creating glfw context");
   scppr_ASSERT(glfwInit(), "failed to initialise glfw context");
   glfwSetErrorCallback(scppr_error_callback);
@@ -248,8 +254,8 @@ scppr::scppr::scppr(std::string name)
   scppr_initialised = true;
 
   scppr_LOG("initialising environment");
-  default_material.diffuse = new texture_t("../assets/no_texture.png");
-  default_material.specular = new texture_t("../assets/black.jpg");
+  default_material.diffuse = new texture_t(_assets_path + "no_texture.png");
+  default_material.specular = new texture_t(_assets_path + "black.jpg");
   default_ambient = new light_t();
   default_ambient -> ambient = {0.15, 0.15, 0.15};
   default_ambient -> color = {0, 0, 0};

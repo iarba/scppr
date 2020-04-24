@@ -17,23 +17,25 @@ void process_mouse_scroll(GLFWwindow *_w, double _xoffset, double yoffset)
   dirty_camera = true;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-  scppr::scppr renderer("Hello world");
-  scppr::model_t *cube = new scppr::model_t("../assets/cube.obj");
+  std::string path = std::string(argv[0]);
+  std::string directory = path.substr(0, path.find_last_of('/')) + "/../scppr/assets/";
+  scppr::scppr *renderer = new scppr::scppr("Hello world", directory);
+  scppr::model_t *cube = new scppr::model_t(directory + "cube.obj");
   scppr::object_t *obj = new scppr::object_t();
   obj -> model = cube;
-  renderer.add_object(obj);
-  renderer.add_listener(scppr::scroll_listener, (void *)&process_mouse_scroll);
-  while(renderer.is_open())
+  renderer -> add_object(obj);
+  renderer -> add_listener(scppr::scroll_listener, (void *)&process_mouse_scroll);
+  while(renderer -> is_open())
   {
-    renderer.poll();
+    renderer -> poll();
     if(dirty_camera)
     {
-      renderer.set_camera(glm::radians(fov), {0, 0, 0}, 0, 0, 0, scppr::SCPPR_CAMERA_FOV);
+      renderer -> set_camera(glm::radians(fov), {0, 0, 0}, 0, 0, 0, scppr::SCPPR_CAMERA_FOV);
       dirty_camera = false;
     }
-    renderer.draw();
+    renderer -> draw();
   }
   delete obj;
   delete cube;

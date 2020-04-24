@@ -88,13 +88,15 @@ void kb_callback(GLFWwindow *window, int key, int scancode, int action, int mods
   }
 }
 
-int main()
+int main(int argc, char **argv)
 {
-  scppr::scppr renderer("Scene explorer");
-  scppr::model_t* cube = new scppr::model_t("../assets/cube.obj");
+  std::string path = std::string(argv[0]);
+  std::string directory = path.substr(0, path.find_last_of('/')) + "/../scppr/assets/";
+  scppr::scppr renderer("Scene explorer", directory);
+  scppr::model_t* cube = new scppr::model_t(directory + "cube.obj");
   scppr::material_t mat;
-  mat.diffuse = new scppr::texture_t("../assets/container2.png");
-  mat.specular = new scppr::texture_t("../assets/container2_specular.png");
+  mat.diffuse = new scppr::texture_t(directory + "container2.png");
+  mat.specular = new scppr::texture_t(directory + "container2_specular.png");
   scppr::object_t *cube1 = new scppr::object_t();
                    cube1 -> model = cube;
                    cube1 -> material_overwrite[0] = mat;
@@ -116,7 +118,7 @@ int main()
   scppr::light_t *light2 = new scppr::light_t();
                   light2 -> position = {0, -10, 5};
   scppr::material_t mat3;
-  mat3.diffuse = new scppr::texture_t("../assets/thonk.png");
+  mat3.diffuse = new scppr::texture_t(directory + "thonk.png");
   scppr::object_t *cube4 = new scppr::object_t();
                    cube4 -> model = cube;
                    cube4 -> position.y = 5;

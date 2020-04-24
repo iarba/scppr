@@ -18,6 +18,7 @@ namespace scppr
   static const uint32_t SCPPR_CAMERA_PITCH = 4;
   static const uint32_t SCPPR_CAMERA_ROLL = 8;
   static const uint32_t SCPPR_CAMERA_YAW = 16;
+  extern std::string _assets_path;
 
   // enums
   enum listener_t
@@ -109,7 +110,7 @@ namespace scppr
   class scppr
   {
   public:
-    scppr(std::string name);
+    scppr(std::string name, std::string assets_path);
     ~scppr();
     void add_object(object_t *obj);
     void remove_object(object_t *obj);

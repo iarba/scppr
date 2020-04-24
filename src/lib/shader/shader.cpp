@@ -38,9 +38,9 @@ GLuint load_program(std::string choice)
   scppr_LOG("creating program");
   GLuint program = glCreateProgram();
   scppr_LOG("creating vertex shader");
-  GLuint v_shader = load_shader(GL_VERTEX_SHADER, "../src/lib/shader/" + choice + ".vertex_shader.c_");
+  GLuint v_shader = load_shader(GL_VERTEX_SHADER, scppr::_assets_path + "shader/" + choice + ".vertex_shader.c_");
   scppr_LOG("creating fragment shader");
-  GLuint f_shader = load_shader(GL_FRAGMENT_SHADER, "../src/lib/shader/" + choice + ".fragment_shader.c_");
+  GLuint f_shader = load_shader(GL_FRAGMENT_SHADER, scppr::_assets_path + "shader/" + choice + ".fragment_shader.c_");
   scppr_LOG("attaching shaders");
   glAttachShader(program, v_shader);
   glAttachShader(program, f_shader);
