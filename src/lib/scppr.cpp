@@ -438,6 +438,16 @@ void scppr::scppr::draw()
   glfwSwapBuffers(window);
 }
 
+double scppr::scppr::get_width()
+{
+  return width;
+}
+
+double scppr::scppr::get_height()
+{
+  return height;
+}
+
 void scppr::scppr::set_camera(double fov, glm::dvec3 eye, double pitch, double roll, double yaw, uint32_t flags)
 {
   if(flags & SCPPR_CAMERA_FOV)
@@ -500,6 +510,8 @@ void scppr::scppr::keyboard_callback_wrap(GLFWwindow* window, int key, int scanc
 
 void scppr::scppr::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+  this -> width = width;
+  this -> height = height;
   glViewport(0, 0, width, height);
 }
 

@@ -123,6 +123,8 @@ namespace scppr
     void poll();
     void draw();
     void set_camera(double fov, glm::dvec3 eye, double pitch, double roll, double yaw, uint32_t flags);
+    double get_width();
+    double get_height();
     GLFWwindow *window;
   private:
     static void framebuffer_size_callback_wrap(GLFWwindow* window, int width, int height);
