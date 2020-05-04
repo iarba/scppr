@@ -25,20 +25,8 @@ scppr::texture_t::texture_t(std::string path)
   scppr_ASSERT(scppr_initialised, "scppr is not initialised");
   int width, height, channels;
   scppr_LOG("attempting to load texture [" + path + "]");
-  unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-  GLenum format;
-  if(channels == 1)
-  {
-    format = GL_RED;
-  }
-  if(channels == 3)
-  {
-    format = GL_RGB;
-  }
-  if(channels == 4)
-  {
-    format = GL_RGBA;
-  }
+  unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+  GLenum format = GL_RGBA;
   scppr_ASSERT(data, "failed to load texture [" + path + "]");
   scppr_LOG("creating texture buffer with " + std::to_string(channels) + "channels");
   glGenTextures(1, &t_id);
