@@ -47,7 +47,7 @@ vec4 point_light(light_t light, vec3 norm, vec3 view_dir)
 
 void main()
 {
-  if(texture(material.diffuse, f_coord).a < 0.9)
+  if(texture(material.diffuse, f_coord).a < 0.1)
   {
     discard;
   }
